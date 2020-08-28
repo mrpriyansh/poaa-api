@@ -24,7 +24,7 @@ app.use((err, req, res, next) => {
   handleError(err, req, res);
 });
 
-cron.schedule('* * * * *', async () => {
+cron.schedule('0 25 * * *', async () => {
   await cronJob();
 });
 app.listen(PORT, () => {
