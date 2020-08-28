@@ -49,7 +49,7 @@ const sendMail = async content => {
     await smtpTransport.sendMail({
       from: process.env.SERVER_MAIL_ADDRESS,
       to: `rammurat1000@gmail.com`,
-      subject: 'testing',
+      subject: 'Important Information',
       text: `Checkout Accounts for Maturity`,
       html: content,
     });

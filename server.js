@@ -24,8 +24,9 @@ app.use((err, req, res, next) => {
   handleError(err, req, res);
 });
 
-cron.schedule('25 0 * * *', async () => {
+cron.schedule('* * * * *', async () => {
   await cronJob();
+  console.log('a');
 });
 app.listen(PORT, () => {
   // eslint-disable-next-line no-console
