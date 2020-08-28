@@ -15,7 +15,7 @@ const isNull = obj => {
 const insertAccount = async account => {
   try {
     const exists = await Account.findOne({ accountno: account.accountno });
-    if (exists) throw new ErrorHandler(401, 'Account Already Exists');
+    if (exists) throw new ErrorHandler(409, 'Account Already Exists');
     await Account.create(account);
     return new ErrorHandler(200, 'Account Added Succesfully');
   } catch (err) {

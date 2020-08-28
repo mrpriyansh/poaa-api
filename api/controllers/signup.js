@@ -10,7 +10,7 @@ const handleSignUp = async (req, res, next) => {
     }
 
     const exists = await User.findOne({ email });
-    if (exists) throw new ErrorHandler(400, 'Email already Exists');
+    if (exists) throw new ErrorHandler(409, 'Email already Exists');
 
     const hash = await bcrypt.hash(password, 10);
     await User.create({ name, email, password: hash, mobile, userType });
