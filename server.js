@@ -31,7 +31,7 @@ cron.schedule('*/15 * * * *', () => {
     .catch(err => console.log(err));
 });
 
-cron.schedule('24 12 * * *', async () => {
+cron.schedule('56 6 * * *', async () => {
   console.log('a');
   await cronJob();
 });
