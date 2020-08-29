@@ -5,9 +5,9 @@ const mailContent = require('./mailContent');
 module.exports = async () => {
   const date = new Date();
   console.log(date);
-  const day = date.getDate();
-  const month = date.getMonth() + 1;
-  const year = date.getFullYear();
+  const day = date.getUTCDate();
+  const month = date.getUTCMonth() + 1;
+  const year = date.getUTCFullYear();
   const todaysDate = `${year}-${month < 10 ? `0${month}` : month}-${day < 10 ? `0${day}` : day}`;
   const todaysAccount = await Accounts.find({ maturityDate: new Date(todaysDate) });
   if (todaysAccount.length) {

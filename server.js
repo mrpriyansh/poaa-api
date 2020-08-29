@@ -25,13 +25,13 @@ app.use((err, req, res, next) => {
   handleError(err, req, res);
 });
 
-cron.schedule('*/15 * * * *', () => {
-  fetch('https://immense-hamlet-02246.herokuapp.com')
-    .then(res => console.log(`successful job: ${res.ok}`))
-    .catch(err => console.log(err));
-});
+// cron.schedule('*/15 * * * *', () => {
+//   fetch('https://immense-hamlet-02246.herokuapp.com')
+//     .then(res => console.log(`successful job: ${res.ok}`))
+//     .catch(err => console.log(err));
+// });
 
-cron.schedule('56 6 * * *', async () => {
+cron.schedule('5 9 * * *', async () => {
   console.log('a');
   await cronJob();
 });
