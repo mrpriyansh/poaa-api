@@ -31,7 +31,7 @@ app.use((err, req, res, next) => {
 //     .catch(err => console.log(err));
 // });
 
-cron.schedule('56 8 * * *', async () => {
+cron.schedule('59 8 * * *', async () => {
   console.log('a');
   await cronJob();
 });
