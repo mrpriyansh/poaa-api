@@ -23,7 +23,7 @@ const insertAccount = async account => {
   }
 };
 
-const sendMail = async content => {
+const sendMail = async (content, mailId) => {
   try {
     const { OAuth2 } = google.auth;
     const oauth2Client = new OAuth2(
@@ -48,7 +48,7 @@ const sendMail = async content => {
     });
     await smtpTransport.sendMail({
       from: process.env.SERVER_MAIL_ADDRESS,
-      to: `rammurat1000@gmail.com`,
+      to: mailId,
       subject: 'Important Information',
       text: `Checkout Accounts for Maturity`,
       html: content,
