@@ -31,7 +31,7 @@ app.use((err, req, res, next) => {
 //     .catch(err => console.log(err));
 // });
 
-cron.schedule('5 10 * * *', async () => {
+cron.schedule('5 0 * * *', async () => {
   console.log('a');
   await cronJob();
 });
