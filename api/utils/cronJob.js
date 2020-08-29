@@ -10,7 +10,9 @@ module.exports = async () => {
   const year = date.getFullYear();
   const todaysDate = `${year}-${month < 10 ? `0${month}` : month}-${day < 10 ? `0${day}` : day}`;
   const todaysAccount = await Accounts.find({ maturityDate: new Date(todaysDate) });
-  if (todaysAccount.length) await sendMail(mailContent(todaysAccount));
-  console.log(todaysAccount);
+  if (todaysAccount.length) {
+    await sendMail(mailContent(todaysAccount));
+    console.log(`Mail Send on ${todaysDate} for ${todaysAccount.length} accounts`);
+  }else console.log(`No accounts found on ${todaysDate}`)
   console.log('running a task every minute');
 };

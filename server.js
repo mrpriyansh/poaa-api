@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
 const cron = require('node-cron');
+const fetch = require('node-fetch');
 const connectDB = require('./config/db');
 const { handleError } = require('./services/handleError');
 
@@ -24,9 +25,15 @@ app.use((err, req, res, next) => {
   handleError(err, req, res);
 });
 
-cron.schedule('5 0 * * * *', async () => {
-  await cronJob();
+cron.schedule('*/15 * * * *', () => {
+  fetch('https://immense-hamlet-02246.herokuapp.com')
+    .then(res => console.log(`successful job: ${res.ok}`))
+    .catch(err => console.log(err));
+});
+
+cron.schedule('5 0 * * *', async () => {
   console.log('a');
+  await cronJob();
 });
 app.listen(PORT, () => {
   // eslint-disable-next-line no-console
