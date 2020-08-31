@@ -27,6 +27,10 @@ const Account = new mongoose.Schema(
       type: Date,
       required: true,
     },
+    agentDetails: {
+      type: Object,
+      required: true,
+    },
     mobile: {
       type: Number,
     },

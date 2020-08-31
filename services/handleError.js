@@ -11,7 +11,6 @@ const handleError = (err, req, res) => {
   if (Number.isInteger(statusCode)) {
     res.status(statusCode).json(message);
   } else {
-    console.log(err);
     res.status(500).json('Server Error');
   }
 };

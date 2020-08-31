@@ -1,3 +1,5 @@
+/* eslint-disable no-restricted-syntax */
+/* eslint-disable guard-for-in */
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
@@ -7,6 +9,7 @@ const connectDB = require('./config/db');
 const { handleError } = require('./services/handleError');
 
 const cronJob = require('./api/utils/cronJob');
+const User = require('./api/models/User');
 
 const app = express();
 
@@ -32,8 +35,17 @@ app.use((err, req, res, next) => {
 // });
 
 cron.schedule('5 0 * * *', async () => {
-  console.log('a');
-  await cronJob();
+// cron.schedule('* * * * *', async () => {
+  const users = await User.find({});
+  // users.forEach(async agent => {
+  //   const agentDetails = { name: agent.name, email: agent.email };
+  //   await cronJob(agentDetails);
+  // });
+  // need to be optimised
+  for (const index in users) {
+    const agentDetails = { name: users[index].name, email: users[index].email };
+    await cronJob(agentDetails);
+  }
 });
 app.listen(PORT, () => {
   // eslint-disable-next-line no-console

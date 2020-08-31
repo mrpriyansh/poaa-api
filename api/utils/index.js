@@ -4,19 +4,21 @@ const { google } = require('googleapis');
 const Account = require('../models/Accounts');
 const { ErrorHandler } = require('../../services/handleError');
 
-const isNull = obj => {
+const isNull = (obj, fields) => {
   // eslint-disable-next-line guard-for-in
-  for (const prop in obj) {
-    if (prop!='mobile' && !obj[prop]) return true;
+  for (const prop in fields) {
+    if (!obj[fields[prop]]){
+      return true;
+    }
   }
   return false;
 };
 
-const insertAccount = async account => {
+const insertAccount = async (account, agentDetails) => {
   try {
     const exists = await Account.findOne({ accountno: account.accountno });
     if (exists) throw new ErrorHandler(409, 'Account Already Exists');
-    await Account.create(account);
+    await Account.create({...account , agentDetails});
     return new ErrorHandler(200, 'Account Added Succesfully');
   } catch (err) {
     return err;
@@ -55,7 +57,6 @@ const sendMail = async (content, mailId) => {
     });
     return { statusCode: 200, message: 'Mail send successfully' };
   } catch (err) {
-    console.log(err);
     return err;
   }
 };

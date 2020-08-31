@@ -12,13 +12,12 @@ const handleSignin = async (req, res, next) => {
     if (!user) throw new ErrorHandler(401, "User doesn't exists");
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) throw new ErrorHandler(401, 'Incorrect Password');
-    const payload = { email: user.email };
+    const payload = { email: user.email, name: user.name };
     const token = jwt.sign(payload, jwtKey, {
       expiresIn: '30d',
     });
     res.status(200).json(token);
   } catch (err) {
-    console.log(err);
     next(err);
   }
 };

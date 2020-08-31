@@ -1,4 +1,4 @@
-const mailContent = accounts => {
+const mailContent = (accounts, name) => {
   //   const accountDetails = accounts.map((account, index) => {
   //     return index + 1
   //       ? `<tr  style="background-color: #74bedb;">
@@ -39,7 +39,7 @@ const mailContent = accounts => {
   }
   return `<body>
   <div style="">
-  <h3 style="color: black; display: flex; text-decoration: underline; justify-content: center;min-width: 100%"> Hello Manish, Following are some account that will mature today. </h3>
+  <h3 style="color: black; display: flex; text-decoration: underline; justify-content: center;min-width: 100%"> Hello ${name}, Following are some account that will mature today. </h3>
   <br/>
   <table style="border-collapse: collapse;width:90%; margin: auto ">
       <thead>
