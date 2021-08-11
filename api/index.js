@@ -12,6 +12,9 @@ const { sendMail } = require('./utils');
 const editAccount = require('./controllers/account/editAccount');
 const deleteAccount = require('./controllers/account/deleteAccount');
 const addInstallment = require('./controllers/installment/addInstallment');
+const editInstallment = require('./controllers/installment/editInstallment');
+const deleteInstallment = require('./controllers/installment/deleteInstallment');
+const allInstallments = require('./controllers/installment/allInstallments');
 
 router.post('/signup', (req, res, next) => {
   signUp(req, res, next);
@@ -41,6 +44,17 @@ router.get('/send', async (_, res) => {
 
 router.post('/addInstallment', userAuth, async (req, res, next) => {
   await addInstallment(req, res, next);
+});
+router.put('/editInstallment', userAuth, async (req, res, next) => {
+  await editInstallment(req, res, next);
+});
+
+router.delete('/deleteInstallment', userAuth, async (req, res, next) => {
+  await deleteInstallment(req, res, next);
+});
+
+router.get('/getAllInstallments', userAuth, async (req, res, next) => {
+  await allInstallments(req, res, next);
 });
 
 module.exports = router;

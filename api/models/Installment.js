@@ -6,7 +6,6 @@ const Installment = new mongoose.Schema(
     accountno: {
       type: Number,
       required: true,
-      unique: true,
     },
     name: {
       type: String,
