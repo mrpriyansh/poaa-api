@@ -1,4 +1,4 @@
-const Account = require('../models/Accounts');
+const Account = require('../../models/Accounts');
 
 module.exports = async (req, res, next) => {
   try {

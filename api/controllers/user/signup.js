@@ -1,6 +1,6 @@
 const bcrypt = require('bcrypt');
-const User = require('../models/User');
-const { ErrorHandler } = require('../../services/handleError');
+const User = require('../../models/User');
+const { ErrorHandler } = require('../../../services/handleError');
 
 const handleSignUp = async (req, res, next) => {
   try {

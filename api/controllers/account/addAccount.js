@@ -1,5 +1,5 @@
-const { isNull, insertAccount } = require('../utils/index');
-const { ErrorHandler } = require('../../services/handleError');
+const { isNull, insertAccount } = require('../../utils/index');
+const { ErrorHandler } = require('../../../services/handleError');
 
 module.exports = async (req, res, next) => {
   const fields = ['name', 'accountno', 'accountType', 'amount', 'openingDate', 'maturityDate'];

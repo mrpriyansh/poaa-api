@@ -1,5 +1,5 @@
-const { ErrorHandler } = require('../../services/handleError');
-const Accounts = require('../models/Accounts');
+const { ErrorHandler } = require('../../../services/handleError');
+const Accounts = require('../../models/Accounts');
 
 module.exports = async (req, res, next) => {
   try {

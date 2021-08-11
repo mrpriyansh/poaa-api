@@ -1,5 +1,5 @@
-const { ErrorHandler } = require('../../services/handleError');
-const { isNull, insertInstallment } = require('../utils');
+const { ErrorHandler } = require('../../../services/handleError');
+const { isNull, insertInstallment } = require('../../utils');
 
 module.exports = async (req, res, next) => {
   try {

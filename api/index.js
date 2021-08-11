@@ -2,16 +2,16 @@ const express = require('express');
 
 const router = express.Router();
 
-const signUp = require('./controllers/signup');
-const signIn = require('./controllers/signin');
-const userDetails = require('./controllers/userDetails');
+const signUp = require('./controllers/user/signup');
+const signIn = require('./controllers/user/signin');
+const userDetails = require('./controllers/user/userDetails');
 const userAuth = require('./middlewares/userAuth');
-const addAccount = require('./controllers/addAccount');
-const allAccounts = require('./controllers/allAccounts');
+const addAccount = require('./controllers/account/addAccount');
+const allAccounts = require('./controllers/account/allAccounts');
 const { sendMail } = require('./utils');
-const editAccount = require('./controllers/editAccount');
-const deleteAccount = require('./controllers/deleteAccount');
-const addInstallment = require('./controllers/addInstallment');
+const editAccount = require('./controllers/account/editAccount');
+const deleteAccount = require('./controllers/account/deleteAccount');
+const addInstallment = require('./controllers/installment/addInstallment');
 
 router.post('/signup', (req, res, next) => {
   signUp(req, res, next);

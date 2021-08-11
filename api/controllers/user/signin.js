@@ -1,8 +1,8 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
-const User = require('../models/User');
-const { ErrorHandler } = require('../../services/handleError');
-const { jwtKey } = require('../../config/config');
+const User = require('../../models/User');
+const { ErrorHandler } = require('../../../services/handleError');
+const { jwtKey } = require('../../../config/config');
 
 const handleSignin = async (req, res, next) => {
   try {
