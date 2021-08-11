@@ -3,11 +3,13 @@ const nodemailer = require('nodemailer');
 const { google } = require('googleapis');
 const Account = require('../models/Accounts');
 const { ErrorHandler } = require('../../services/handleError');
+const Installment = require('../models/Installment');
+const { INSTALLMENT_PENDING } = require('./constants');
 
 const isNull = (obj, fields) => {
   // eslint-disable-next-line guard-for-in
   for (const prop in fields) {
-    if (!obj[fields[prop]]){
+    if (!obj[fields[prop]]) {
       return true;
     }
   }
@@ -18,10 +20,25 @@ const insertAccount = async (account, agentDetails) => {
   try {
     const exists = await Account.findOne({ accountno: account.accountno });
     if (exists) throw new ErrorHandler(409, 'Account Already Exists');
-    await Account.create({...account , agentDetails});
+    await Account.create({ ...account, agentDetails });
     return new ErrorHandler(200, 'Account Added Succesfully');
   } catch (err) {
     return err;
+  }
+};
+
+const insertInstallment = async (installment, next) => {
+  try {
+    const exists = await Installment.findOne({
+      accountno: installment.accountno,
+      status: INSTALLMENT_PENDING,
+    });
+    if (exists) throw new ErrorHandler(409, 'Account already logged, Try to edit it');
+    await Installment.create({ ...installment, status: INSTALLMENT_PENDING });
+    return 'Installment Logged Successfully';
+  } catch (err) {
+    next(err);
+    throw err;
   }
 };
 
@@ -45,7 +62,7 @@ const sendMail = async (content, mailId) => {
         clientId: process.env.GMAIL_CLIENT_ID,
         clientSecret: process.env.GMAIL_CLIENT_SECRET,
         refreshToken: process.env.REFRESH_TOKEN,
-          accessToken,
+        accessToken,
       },
     });
     await smtpTransport.sendMail({
@@ -61,4 +78,4 @@ const sendMail = async (content, mailId) => {
   }
 };
 
-module.exports = { isNull, insertAccount, sendMail };
+module.exports = { isNull, insertAccount, sendMail, insertInstallment };
