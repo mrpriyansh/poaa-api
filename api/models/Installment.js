@@ -1,4 +1,4 @@
-const { ObjectId } = require('mongoose');
+const { ObjectId, Date } = require('mongoose');
 const mongoose = require('mongoose');
 
 const Installment = new mongoose.Schema(
@@ -26,6 +26,12 @@ const Installment = new mongoose.Schema(
     status: {
       type: String,
       required: true,
+    },
+    listedOn: {
+      type: Date,
+    },
+    lists: {
+      type: Array,
     },
   },
   {
