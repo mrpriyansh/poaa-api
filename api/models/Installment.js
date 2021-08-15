@@ -30,9 +30,6 @@ const Installment = new mongoose.Schema(
     listedOn: {
       type: Date,
     },
-    lists: {
-      type: Array,
-    },
   },
   {
     timestamps: true,
