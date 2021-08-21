@@ -16,6 +16,7 @@ const editInstallment = require('./controllers/installment/editInstallment');
 const deleteInstallment = require('./controllers/installment/deleteInstallment');
 const allInstallments = require('./controllers/installment/allInstallments');
 const generateList = require('./controllers/list/generateList');
+const allLists = require('./controllers/list/allLists');
 
 router.post('/signup', (req, res, next) => {
   signUp(req, res, next);
@@ -60,6 +61,10 @@ router.get('/getAllInstallments', userAuth, async (req, res, next) => {
 
 router.post('/generateList', userAuth, async (req, res, next) => {
   await generateList(req, res, next);
+});
+
+router.get('/getAllLists', userAuth, async (req, res, next) => {
+  await allLists(req, res, next);
 });
 
 module.exports = router;
