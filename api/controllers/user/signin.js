@@ -8,7 +8,7 @@ const handleSignin = async (req, res, next) => {
   try {
     const { email, password } = req.body;
     if (!email || !password) throw new ErrorHandler(400, 'Fields Cannot by empty');
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email: email.toLowerCase() });
     if (!user) throw new ErrorHandler(401, "User doesn't exists");
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) throw new ErrorHandler(401, 'Incorrect Password');

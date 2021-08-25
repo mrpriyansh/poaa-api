@@ -9,7 +9,7 @@ const handleSignUp = async (req, res, next) => {
       throw new ErrorHandler(400, 'Fields Cannot be empty');
     }
 
-    const exists = await User.findOne({ email });
+    const exists = await User.findOne({ email: email.toLowerCase() });
     if (exists) throw new ErrorHandler(409, 'Email already Exists');
 
     const hash = await bcrypt.hash(password, 10);
