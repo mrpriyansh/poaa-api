@@ -8,6 +8,8 @@ class ErrorHandler extends Error {
 
 const handleError = (err, req, res) => {
   const { statusCode, message } = err;
+  // eslint-disable-next-line no-console
+  console.log(message);
   if (Number.isInteger(statusCode)) {
     res.status(statusCode).json(message);
   } else {

@@ -56,7 +56,6 @@ module.exports = async (req, res, next) => {
           cur = LIST_LIMIT;
         }
         const payableInst = Math.min(Math.floor(cur / inst.amount), currentInst);
-        console.log(payableInst, inst.amount, inst.installments, remaining);
 
         if (list.length < listNo) {
           list.push({ accounts: [], totalAmount: 0, count: 0 });
@@ -75,7 +74,6 @@ module.exports = async (req, res, next) => {
         cur -= payableInst * inst.amount;
         remaining -= payableInst * inst.amount;
         currentInst -= payableInst;
-        console.log(payableInst, inst.amount, inst.installments, remaining);
       }
     });
 
@@ -87,17 +85,14 @@ module.exports = async (req, res, next) => {
       { status: INSTALLMENT_LIST_CREATED }
     ).session(session);
 
-    console.log('sfa', list);
     await List.create([{ list }], { session });
     await session.commitTransaction();
 
     res.json('Listed Generated Successfully');
   } catch (err) {
-    console.log('abort');
     await session.abortTransaction();
     next(err);
   } finally {
-    console.log('finally');
     session.endSession();
   }
 };
