@@ -59,7 +59,10 @@ module.exports = async (req, res, next) => {
     },
   ];
 
-  const browser = await puppeteer.launch({ headless: true });
+  const browser = await puppeteer.launch({
+    headless: true,
+    args: ['--no-sandbox', '--disable-setuid-sandbox'],
+  });
   const page = await browser.newPage();
   await page.goto(dopUrl);
   await page.waitForSelector(formSelector.id);
