@@ -59,7 +59,7 @@ module.exports = async (req, res, next) => {
     },
   ];
 
-  const browser = await puppeteer.launch({ headless: false });
+  const browser = await puppeteer.launch({ headless: true });
   const page = await browser.newPage();
   await page.goto(dopUrl);
   await page.waitForSelector(formSelector.id);
@@ -108,6 +108,7 @@ module.exports = async (req, res, next) => {
   console.log(allAccounts);
   text = await afterSelectingAcc(page, allAccounts, listData[0]);
   res.json(text);
+  await browser.close();
 };
 
 const afterSelectingAcc = async (page, allAccounts, listData) => {
