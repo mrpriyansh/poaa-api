@@ -60,7 +60,7 @@ module.exports = async (req, res, next) => {
   ];
 
   const browser = await puppeteer.launch({
-    headless: true,
+    headless: false,
     args: ['--no-sandbox', '--disable-setuid-sandbox'],
   });
   const page = await browser.newPage();
@@ -69,49 +69,78 @@ module.exports = async (req, res, next) => {
 
   await page.$eval(formSelector.id, (el, value) => (el.value = value), userDetails.id);
   await page.$eval(formSelector.password, (el, value) => (el.value = value), userDetails.password);
-  await page.$eval(formSelector.login, el => el.click());
 
-  const accountButtonSelector = `a[name="HREF_Accounts"]`;
+  const captchaSelector = `img[id="IMAGECAPTCHA"]`;
+  console.log('sf');
+  const data = await page.$$eval(captchaSelector, imgs => imgs.map(img => img.getAttribute('src')));
+  console.log(data);
+  // await page.$eval(captchaSelector, el => {
+  //   console.log(el);
+  //   console.log('sdfa');
+  // });
+  res.json('test');
+  // await page.$eval(formSelector.login, el => el.click());
 
-  await page.waitForSelector(accountButtonSelector);
-  await page.$eval(accountButtonSelector, el => el.click());
+  // const accountButtonSelector = `a[name="HREF_Accounts"]`;
 
-  const accountEnquireSelector = `a[id="Agent Enquire & Update Screen"]`;
-  await page.waitForSelector(accountEnquireSelector);
-  await page.$eval(accountEnquireSelector, el => el.click());
+  // await page.waitForSelector(accountButtonSelector);
+  // await page.$eval(accountButtonSelector, el => el.click());
 
-  const allAccounts = listData[0].accounts.map(ele => ele.accountno.toString()).sort();
+  // const accountEnquireSelector = `a[id="Agent Enquire & Update Screen"]`;
+  // await page.waitForSelector(accountEnquireSelector);
+  // await page.$eval(accountEnquireSelector, el => el.click());
 
-  const accountsFieldSelector = `textarea[name="CustomAgentRDAccountFG.ACCOUNT_NUMBER_FOR_SEARCH"]`;
-  await page.waitForSelector(accountsFieldSelector);
-  await page.$eval(
-    accountsFieldSelector,
-    (el, value) => (el.value = value),
-    allAccounts.toString()
-  );
+  // const allAccounts = listData[0].accounts.map(ele => ele.accountno.toString()).sort();
 
-  const fetchButtonSelector = `input[name="Action.FETCH_INPUT_ACCOUNT"]`;
-  await page.$eval(fetchButtonSelector, el => el.click());
+  // const accountsFieldSelector = `textarea[name="CustomAgentRDAccountFG.ACCOUNT_NUMBER_FOR_SEARCH"]`;
+  // await page.waitForSelector(accountsFieldSelector);
+  // await page.$eval(
+  //   accountsFieldSelector,
+  //   (el, value) => (el.value = value),
+  //   allAccounts.toString()
+  // );
 
-  const txnModeSelector = `input[name="CustomAgentRDAccountFG.PAY_MODE_SELECTED_FOR_TRN"][value='C']`;
-  await page.waitForSelector(txnModeSelector);
-  await page.$eval(txnModeSelector, el => el.click());
+  // const fetchButtonSelector = `input[name="Action.FETCH_INPUT_ACCOUNT"]`;
+  // await page.$eval(fetchButtonSelector, el => el.click());
 
-  console.log(allAccounts);
-  for (const [ind, ele] of allAccounts.entries()) {
-    console.log(ind, ele);
-    const accCBSelector = `input[name="CustomAgentRDAccountFG.SELECT_INDEX_ARRAY[${ind}]"]`;
-    await page.waitForSelector(accCBSelector);
-    await page.$eval(accCBSelector, el => el.click());
-    if (ind % 10 == 9) {
-      const nextBtnSelector = `input[name="Action.AgentRDActSummaryAllListing.GOTO_NEXT__"]`;
-      await page.$eval(nextBtnSelector, el => el.click());
-    }
-  }
-  console.log(allAccounts);
-  text = await afterSelectingAcc(page, allAccounts, listData[0]);
-  res.json(text);
-  await browser.close();
+  // const txnModeSelector = `input[name="CustomAgentRDAccountFG.PAY_MODE_SELECTED_FOR_TRN"][value='C']`;
+  // await page.waitForSelector(txnModeSelector);
+  // await page.$eval(txnModeSelector, el => el.click());
+
+  // console.log(allAccounts);
+  // for (const [ind, ele] of allAccounts.entries()) {
+  //   console.log(ind, ele);
+  //   const accCBSelector = `input[name="CustomAgentRDAccountFG.SELECT_INDEX_ARRAY[${ind}]"]`;
+  //   await page.waitForSelector(accCBSelector);
+  //   await page.$eval(accCBSelector, el => el.click());
+  //   if (ind % 10 == 9) {
+  //     const nextBtnSelector = `input[name="Action.AgentRDActSummaryAllListing.GOTO_NEXT__"]`;
+  //     await page.$eval(nextBtnSelector, el => el.click());
+  //   }
+  // }
+  // console.log(allAccounts);
+  // listRefNo = await afterSelectingAcc(page, allAccounts, listData[0]);
+  // res.json(listRefNo);
+
+  // const reportsTagSelector = `a[name="HREF_Reports"]`;
+
+  // await page.$eval(reportsTagSelector, el => el.click());
+
+  // const refNoFieldSelector = `input[name="CustomAgentRDAccountFG.EBANKING_REF_NUMBER"]`;
+
+  // await page.waitForSelector(refNoFieldSelector);
+  // await page.$eval(refNoFieldSelector, (el, value) => (el.value = value), listRefNo);
+
+  // const reportSearchBtnSelector = `input[name="Action.SEARCH_INSTALLMENT_DETAILS"]`;
+  // await page.$eval(reportSearchBtnSelector, el => el.click());
+
+  // const fileTypeSelector = `select[name="CustomAgentRDAccountFG.OUTFORMAT"]`;
+  // await page.waitForSelector(fileTypeSelector);
+  // await page.select(fileTypeSelector, '4');
+  // // await page.select(fileTypeSelectId, '4');
+
+  // const downloadBtnSelector = `input[name="Action.GENERATE_REPORT"]`;
+  // await page.$eval(downloadBtnSelector, el => el.click());
 };
 
 const afterSelectingAcc = async (page, allAccounts, listData) => {
@@ -137,12 +166,9 @@ const afterSelectingAcc = async (page, allAccounts, listData) => {
 
   const greenBannerSelector = `div[class="greenbg"]`;
   await page.waitForSelector(greenBannerSelector);
-  const text = await page.$eval(greenBannerSelector, el => el.innerHTML);
-  console.log(text);
-  const regexTemp = `/<a href="#" id="errorlink1"></a> Payment successful. Your payment reference number is (C\d{9}). Please note your reference number for future queries./`;
-  const ans = text.match(regexTemp);
-  console.log(ans);
-  return text;
+  const bannerText = await page.$eval(greenBannerSelector, el => el.innerHTML);
+  const regexTemp = /Payment successful. Your payment reference number is (C\d{9}). Please note your reference number for future queries./;
+  return bannerText.match(regexTemp)[1];
 };
 
 const changeInstallments = async (page, ind, elem) => {
