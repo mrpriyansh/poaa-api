@@ -18,6 +18,7 @@ const allInstallments = require('./controllers/installment/allInstallments');
 const generateList = require('./controllers/list/generateList');
 const allLists = require('./controllers/list/allLists');
 const createList = require('./controllers/list/createList');
+const addAllAccounts = require('./controllers/account/addAllAccounts');
 
 router.post('/signup', (req, res, next) => {
   signUp(req, res, next);
@@ -30,6 +31,9 @@ router.get('/userdetails', userAuth, (req, res, next) => {
 });
 router.post('/addaccount', userAuth, (req, res, next) => {
   addAccount(req, res, next);
+});
+router.post('/addAllAccounts', userAuth, (req, res, next) => {
+  addAllAccounts(req, res, next);
 });
 router.get('/allaccounts', userAuth, (req, res, next) => {
   allAccounts(req, res, next);

@@ -23,7 +23,7 @@ const insertAccount = async (account, agentId) => {
     await Account.create({ ...account, agentId });
     return new ErrorHandler(200, 'Account Added Succesfully');
   } catch (err) {
-    return err;
+    return Promise.reject(err);
   }
 };
 
