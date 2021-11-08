@@ -18,6 +18,11 @@ const allInstallments = require('./controllers/installment/allInstallments');
 const generateList = require('./controllers/list/generateList');
 const allLists = require('./controllers/list/allLists');
 const createList = require('./controllers/list/createList');
+const updateBulkAslaas = require('./controllers/account/updateBulkAslaas');
+const useSSE = require('./middlewares/useSSE');
+const ssetest = require('./controllers/ssetest');
+const processScheduler = require('./utils/processScheduler');
+const Task = require('./models/Task');
 
 router.post('/signup', (req, res, next) => {
   signUp(req, res, next);
@@ -68,8 +73,21 @@ router.get('/getAllLists', userAuth, async (req, res, next) => {
   await allLists(req, res, next);
 });
 
-router.post('/createList', userAuth, async (req, res, next) => {
+router.post('/createList', async (req, res, next) => {
   await createList(req, res, next);
 });
 
+router.post('/update-aslaas', async (req, res, next) => {
+  await updateBulkAslaas(req, res, next);
+});
+
+router.get('/stream-random', useSSE, ssetest);
 module.exports = router;
+
+router.post('/schedule/:type', processScheduler);
+
+router.get('/status', function(request, response) {
+  Task.findById(request.query.id).exec(function(err, task) {
+    response.status(200).json(task);
+  });
+});
