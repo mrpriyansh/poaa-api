@@ -1,13 +1,26 @@
 /* eslint-disable */
 const puppeteer = require('puppeteer');
 const { createWorker } = require('tesseract.js');
+const User = require('../../models/User');
+const connectDB = require('../../../config/db');
 
+const notFoundAccountsLinkErrorMessage =
+  'waiting for selector `a[name=' + `"HREF_Accounts"]` + '` failed: timeout 60000ms exceeded';
+const wrongPwdTemplate = 'The maximum retry attempts allowed for this access mode are 5.';
 const dopUrl = 'https://dopagent.indiapost.gov.in/';
-module.exports = async allAccounts => {
-  if (!allAccounts.length) throw new Error('No valid accounts found');
-  process.send({ status: 'Started' });
 
-  const userDetails = { id: 'dop.mi2110080200001', password: 'rama1980#' };
+module.exports = async allAccounts => {
+  connectDB();
+  if (!allAccounts.length) throw new Error('No valid accounts found');
+  await process.send({ status: 'Started' });
+
+  const userDetails = {
+    id: 'dop.mi2110080200001',
+    email: 'kulshreshtha.manish@gmail.com',
+    password: 'rama1980#',
+  };
+  const user = await User.findOne({ email: userDetails.email });
+  if (user && user.pPassword) throw new Error('Please reset your password.');
 
   const browser = await puppeteer.launch({
     headless: false,
@@ -38,13 +51,13 @@ module.exports = async allAccounts => {
         fail.push(allAccounts[ind]);
       } else succ.push(allAccounts[ind]);
       if (ind % 5 == 0 && ind != allAccounts.length - 1)
-        process.send({ progress: (100 * ind) / allAccounts.length });
+        await process.send({ progress: (100 * ind) / allAccounts.length });
     }
 
-    process.send({ misc: { fail, succ }, status: 'DONE!', progress: 100 });
+    await process.send({ misc: { fail, succ }, status: 'DONE!', progress: 100.0 });
     process.disconnect();
   } catch (error) {
-    process.send({ error });
+    await process.send({ error: error.message });
   } finally {
     browser.close();
   }
@@ -93,7 +106,27 @@ const loginWebsite = async (page, userDetails) => {
     await page.waitForSelector(accountButtonSelector, { timeout: 60000 });
     return true;
   } catch (error) {
+    if (error.message === notFoundAccountsLinkErrorMessage) {
+      const errorBadgeSelector = `div[class="redbg"]`;
+      const bannerText = await page.$eval(errorBadgeSelector, el => el.innerHTML);
+      checkForWrongPwd(bannerText, userDetails);
+    }
     return false;
+  }
+};
+
+const checkForWrongPwd = async (bannerText, userDetails) => {
+  try {
+    const regexTemp = /(.)* (The maximum retry attempts allowed for this access mode are 5.)/;
+    const groups = bannerText.match(regexTemp);
+    if (groups && groups.length >= 2 && groups[2] === wrongPwdTemplate) {
+      const t = await User.updateOne({ email: userDetails.email }, { $unset: { pPassword: '' } });
+      await process.send({ error: 'Please reset your password' });
+    }
+  } catch (error) {
+    console.log(error);
+  } finally {
+    process.disconnect();
   }
 };
 
@@ -133,6 +166,11 @@ const getCaptcha = async imgBase64 => {
 
 const updateAslaas = async (page, account) => {
   try {
+    if (
+      (account.accountNo && !account.accountNo.length) ||
+      (account.aslaasNo && !account.aslaasNo.length)
+    )
+      throw new Error('Invalid details');
     const accountEnquireSelector = `a[name="HREF_Update ASLAAS Number"]`;
     await page.waitForSelector(accountEnquireSelector);
     await page.$eval(accountEnquireSelector, el => el.click());

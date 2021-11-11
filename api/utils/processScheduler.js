@@ -2,7 +2,6 @@ const childProcess = require('child_process');
 const Task = require('../models/Task');
 
 module.exports = async (req, res, next) => {
-  //   console.log(req.body);
   let gTask = null;
   let gTaskProcessor = null;
   try {
@@ -12,19 +11,19 @@ module.exports = async (req, res, next) => {
     const taskProcessor = childProcess.fork('./api/utils/worker.js');
     gTaskProcessor = taskProcessor;
 
-    taskProcessor.on('message', function(payload) {
-      console.log(payload);
-      if (payload.error) {
-        task.status = 'FAILED';
-        task.error = payload.error;
-        console.log(payload);
-        task.save();
-        taskProcessor.kill();
-      } else {
-        Object.keys(payload).forEach(ele => {
-          task[ele] = payload[ele];
-        });
-        task.save();
+    taskProcessor.on('message', async function(payload) {
+      try {
+        if (payload.error) {
+          await Task.updateOne(
+            { _id: task._id },
+            { $set: { status: 'FAILED', error: payload.error } }
+          );
+          taskProcessor.kill();
+        } else {
+          await Task.updateOne({ _id: task._id }, { $set: { ...payload } });
+        }
+      } catch (err) {
+        console.log(err);
       }
     });
 
@@ -36,12 +35,13 @@ module.exports = async (req, res, next) => {
     const params = req.body;
 
     taskProcessor.send(params);
-    res.status(201).json(task);
+    res.status(202).json(task);
   } catch (err) {
     if (gTask) {
-      gTask.status = 'Inititation Failed';
-      gTask.error = err.message;
-      gTask.save();
+      await Task.updateOne(
+        { _id: gTask._id },
+        { $set: { status: 'INITITATION_FAILED', error: err.message } }
+      );
     }
     if (gTaskProcessor) {
       gTaskProcessor.kill();
