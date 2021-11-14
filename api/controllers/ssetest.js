@@ -4,7 +4,7 @@ module.exports = (req, res) => {
       value: Math.random(),
     };
     //     res.write(`data: ${JSON.stringify(data)}`);
-    res.sendEventStreamData(data, 'dfs');
+    res.sendEventStreamData(data);
   }, 1000);
 
   // close

@@ -1,5 +1,4 @@
 const jwt = require('jsonwebtoken');
-const { jwtKey } = require('../../config/config');
 const { ErrorHandler } = require('../../services/handleError');
 
 module.exports = (req, res, next) => {
@@ -8,11 +7,9 @@ module.exports = (req, res, next) => {
       throw new ErrorHandler(417, 'No token received!');
     }
     const token = req.headers.authorization.split(' ')[1];
-    jwt.verify(token, jwtKey, (error, decoded) => {
-      if (error) throw new ErrorHandler(498, 'Token is invalid');
-      req.user = decoded;
-      next();
-    });
+    const decoded = jwt.decode(token);
+    req.user = decoded.user_data;
+    next();
   } catch (err) {
     next(err);
   }

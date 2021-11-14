@@ -21,8 +21,8 @@ const createList = require('./controllers/list/createList');
 const updateBulkAslaas = require('./controllers/account/updateBulkAslaas');
 const useSSE = require('./middlewares/useSSE');
 const ssetest = require('./controllers/ssetest');
-const processScheduler = require('./utils/processScheduler');
-const Task = require('./models/Task');
+const processScheduler = require('./controllers/scheduler/processScheduler');
+const updateStatus = require('./controllers/scheduler/updateStatus');
 
 router.post('/signup', (req, res, next) => {
   signUp(req, res, next);
@@ -82,12 +82,9 @@ router.post('/update-aslaas', async (req, res, next) => {
 });
 
 router.get('/stream-random', useSSE, ssetest);
+
+router.post('/schedule/:type', userAuth, processScheduler);
+
+router.get('/status', [useSSE], updateStatus);
+
 module.exports = router;
-
-router.post('/schedule/:type', processScheduler);
-
-router.get('/status', function(request, response) {
-  Task.findById(request.query.id).exec(function(err, task) {
-    response.status(200).json(task);
-  });
-});
