@@ -12,7 +12,7 @@ module.exports = async (id, userDetails, taskId) => {
   connectDB();
 
   const browser = await puppeteer.launch({
-    headless: false,
+    // headless: false,
     args: ['--no-sandbox', '--disable-setuid-sandbox'],
   });
   try {
