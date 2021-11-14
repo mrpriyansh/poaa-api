@@ -99,7 +99,7 @@ const loginWebsite = async (page, userDetails, attemp) => {
     );
     await page.waitForSelector(formSelector.captcha);
     await page.$eval(formSelector.captcha, (el, value) => (el.value = value), captcha);
-    await page.waitForSelector(formSelector.captcha);
+    await page.waitForSelector(formSelector.login);
 
     await page.$eval(formSelector.login, el => el.click());
     const accountButtonSelector = `a[name="HREF_Accounts"]`;

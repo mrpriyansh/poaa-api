@@ -80,15 +80,15 @@ module.exports = async (id, userDetails, taskId) => {
       await page.waitForSelector(txnModeSelector);
       await page.$eval(txnModeSelector, el => el.click());
 
-      // console.log(allAccounts);
       for (const [ind, ele] of allAccounts.entries()) {
         const accCBSelector = `input[name="CustomAgentRDAccountFG.SELECT_INDEX_ARRAY[${ind}]"]`;
-        await page.waitForSelector(accCBSelector);
-        await page.$eval(accCBSelector, el => el.click());
-        if (ind % 10 == 9) {
+        if (ind && ind % 10 == 0) {
           const nextBtnSelector = `input[name="Action.AgentRDActSummaryAllListing.GOTO_NEXT__"]`;
+          await page.waitForSelector(nextBtnSelector);
           await page.$eval(nextBtnSelector, el => el.click());
         }
+        await page.waitForSelector(accCBSelector);
+        await page.$eval(accCBSelector, el => el.click());
       }
       refNo = await afterSelectingAcc(page, allAccounts, listData, listIndex);
       listsRefno.push(refNo);
@@ -111,11 +111,18 @@ const afterSelectingAcc = async (page, allAccounts, listData, listIndex) => {
 
     await page.waitForSelector(paySaveInstSelector);
 
-    let ind = 0;
     await process.send({ progress: `Chaning Installments of accounts of list ${listIndex + 1}` });
-    for (const elem of listData.accounts.sort()) {
-      if (elem.paidInstallments !== 1) await changeInstallments(page, ind, elem);
-      ind++;
+    for (const [ind, elem] of listData.accounts
+      .sort((a, b) => a.accountNo - b.accountNo)
+      .entries()) {
+      if (ind && ind % 10 == 0) {
+        const nextBtnSelector = `input[name="Action.SelectedAgentRDActSummaryListing.GOTO_NEXT__"]`;
+        await page.waitForSelector(nextBtnSelector);
+        await page.$eval(nextBtnSelector, el => el.click());
+      }
+      if (elem.paidInstallments !== 1) {
+        await changeInstallments(page, ind, elem);
+      }
     }
 
     const paybtnSelector = `input[name="Action.PAY_ALL_SAVED_INSTALLMENTS"]`;
