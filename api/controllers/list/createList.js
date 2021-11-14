@@ -4,11 +4,10 @@ const loginWebsite = require('../../utils/portalLogin');
 const connectDB = require('../../../config/db');
 const User = require('../../models/User');
 const List = require('../../models/List');
-const { request } = require('express');
 const crypto = require('crypto');
 
 const dopUrl = 'https://dopagent.indiapost.gov.in/';
-module.exports = async (id, userDetails, taskId) => {
+module.exports = async (id, userDetails, taskId, globalTimeout = 3000) => {
   connectDB();
 
   const browser = await puppeteer.launch({
@@ -30,10 +29,11 @@ module.exports = async (id, userDetails, taskId) => {
 
     userDetails.pPassword = password;
     const page = await browser.newPage();
-    const arr = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+    await page.setDefaultTimeout(globalTimeout);
 
+    const arr = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
     for (const ind of arr) {
-      const isLoggedIn = await loginWebsite(page, userDetails, ind);
+      const isLoggedIn = await loginWebsite(page, userDetails, ind, globalTimeout);
       console.log(ind, isLoggedIn);
       if (isLoggedIn) break;
     }

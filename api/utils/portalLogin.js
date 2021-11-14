@@ -20,6 +20,16 @@ const notFoundAccountsLinkErrorMessage =
 const wrongPwdTemplate = 'The maximum retry attempts allowed for this access mode are 5.';
 const dopUrl = 'https://dopagent.indiapost.gov.in/';
 
+const notFoundAccountErrMsg = waitingTime => {
+  return (
+    'waiting for selector `a[name=' +
+    `"HREF_Accounts"]` +
+    '` failed: timeout ' +
+    waitingTime +
+    'ms exceeded'
+  );
+};
+
 const checkForWrongPwd = async userDetails => {
   try {
     await User.updateOne({ email: userDetails.email }, { $unset: { pPassword: '' } });
@@ -62,7 +72,7 @@ const getCaptcha = async imgBase64 => {
   }
 };
 
-const loginWebsite = async (page, userDetails, attemp) => {
+const loginWebsite = async (page, userDetails, attemp, globalTimeout) => {
   const formDetails = {
     id: 'AuthenticationFG.USER_PRINCIPAL',
     password: 'AuthenticationFG.ACCESS_CODE',
@@ -105,15 +115,16 @@ const loginWebsite = async (page, userDetails, attemp) => {
     const accountButtonSelector = `a[name="HREF_Accounts"]`;
     const errorBadgeSelector = `div[class="redbg"]`;
     await any([
-      page.waitForSelector(errorBadgeSelector, { timeout: waitingTime }),
-      page.waitForSelector(accountButtonSelector, { timeout: waitingTime }),
+      page.waitForSelector(errorBadgeSelector),
+      page.waitForSelector(accountButtonSelector),
     ]);
-    await page.waitForSelector(accountButtonSelector, { timeout: 1000 });
+    await page.waitForSelector(accountButtonSelector, { timeout: shortWaitingTime });
     return true;
   } catch (error) {
+    console.log(error);
     if (
-      error.message === notFoundAccountsLinkErrorMessageShort ||
-      error.message === notFoundAccountsLinkErrorMessage
+      error.message === notFoundAccountErrMsg(globalTimeout) ||
+      error.message === notFoundAccountErrMsg(shortWaitingTime)
     ) {
       const errorBadgeSelector = `div[class="redbg"]`;
       const bannerText = await page.$eval(errorBadgeSelector, el => el.innerHTML);
