@@ -55,7 +55,7 @@ module.exports = async (id, userDetails, taskId, globalTimeout = 3000) => {
       const allAccounts = listData.accounts.map(ele => ele.accountNo.toString()).sort();
 
       const accountsFieldSelector = `textarea[name="CustomAgentRDAccountFG.ACCOUNT_NUMBER_FOR_SEARCH"]`;
-      await page.waitForSelector(accountsFieldSelector);
+      await page.waitForSelector(accountsFieldSelector, { timeout: 2 * globalTimeout });
       await page.$eval(
         accountsFieldSelector,
         (el, value) => (el.value = value),
@@ -113,7 +113,7 @@ const afterSelectingAcc = async (page, allAccounts, listData, listIndex) => {
 
     await process.send({ progress: `Chaning Installments of accounts of list ${listIndex + 1}` });
     for (const [ind, elem] of listData.accounts
-      .sort((a, b) => a.accountNo - b.accountNo)
+      .sort((a, b) => a.accountNo.localeCompare(b.accountNo))
       .entries()) {
       if (ind && ind % 10 == 0) {
         const nextBtnSelector = `input[name="Action.SelectedAgentRDActSummaryListing.GOTO_NEXT__"]`;
@@ -144,6 +144,14 @@ const changeInstallments = async (page, ind, elem) => {
   const noOfInstSelector = `input[name="CustomAgentRDAccountFG.RD_INSTALLMENT_NO"]`;
 
   try {
+    const tablePage = Math.floor(ind / 10);
+    if (tablePage) {
+      const inputPageSelector = `input[name="CustomAgentRDAccountFG.SelectedAgentRDActSummaryListing_REQUESTED_PAGE_NUMBER"]`;
+      const goButtonSelector = `input[name="Action.SelectedAgentRDActSummaryListing.GOTO_PAGE__"]`;
+      await page.waitForSelector(inputPageSelector);
+      await page.$eval(inputPageSelector, (el, value) => (el.value = value), 1 + tablePage);
+      await page.$eval(goButtonSelector, el => el.click());
+    }
     await page.waitForSelector(accRadioSelector);
     await page.$eval(accRadioSelector, el => el.click());
     await page.$eval(noOfInstSelector, (el, value) => (el.value = value), elem.paidInstallments);

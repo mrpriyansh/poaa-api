@@ -88,7 +88,9 @@ const loginWebsite = async (page, userDetails, attemp, globalTimeout) => {
   };
 
   try {
-    await process.send({ progress: `Trying to loggin to website. Attempt ${attemp}` });
+    await process.send({
+      progress: `Trying to loggin to website. Attempt ${Math.ceil(attemp / 3)}`,
+    });
     const [response] = await Promise.all([
       page.waitForResponse(resp => resp.url().includes('AuthenticationController;jsessionid')),
       page.goto(dopUrl),
