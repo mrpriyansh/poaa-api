@@ -8,7 +8,7 @@ const Account = new mongoose.Schema(
       required: true,
     },
     accountno: {
-      type: Number,
+      type: String,
       required: true,
       unique: true,
     },
