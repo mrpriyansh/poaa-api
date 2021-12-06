@@ -18,7 +18,7 @@ const isNull = (obj, fields) => {
 
 const insertAccount = async (account, agentId) => {
   try {
-    const exists = await Account.findOne({ accountno: account.accountno });
+    const exists = await Account.findOne({ accountNo: account.accountNo });
     if (exists) throw new ErrorHandler(409, 'Account Already Exists');
     await Account.create({ ...account, agentId });
     return new ErrorHandler(200, 'Account Added Succesfully');
