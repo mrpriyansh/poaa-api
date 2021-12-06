@@ -4,9 +4,9 @@ const { INSTALLMENT_PENDING } = require('../../utils/constants');
 
 module.exports = async (req, res, next) => {
   try {
-    if (!req.body.accountno) throw new ErrorHandler(400, 'Account number is required');
+    if (!req.body.accountNo) throw new ErrorHandler(400, 'Account number is required');
     await Installment.deleteOne({
-      accountno: req.body.accountno,
+      accountNo: req.body.accountNo,
       status: INSTALLMENT_PENDING,
     });
     res.json('Installment Deleted Successfully!');

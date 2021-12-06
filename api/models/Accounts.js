@@ -7,7 +7,7 @@ const Account = new mongoose.Schema(
       type: String,
       required: true,
     },
-    accountno: {
+    accountNo: {
       type: String,
       required: true,
       unique: true,

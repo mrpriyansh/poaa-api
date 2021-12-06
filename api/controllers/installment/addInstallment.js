@@ -3,7 +3,7 @@ const { isNull, insertInstallment } = require('../../utils');
 
 module.exports = async (req, res, next) => {
   try {
-    const fields = ['name', 'accountno', 'amount'];
+    const fields = ['name', 'accountNo', 'amount'];
     const body = { ...req.body, agentId: req.user.id };
     if (isNull(body, fields)) throw new ErrorHandler(400, 'Fields cannot be empty');
     if (body && body.installments <= 0)

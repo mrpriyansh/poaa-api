@@ -30,7 +30,7 @@ const insertAccount = async (account, agentId) => {
 const insertInstallment = async (installment, next) => {
   try {
     const exists = await Installment.findOne({
-      accountno: installment.accountno,
+      accountNo: installment.accountNo,
       status: INSTALLMENT_PENDING,
     });
     if (exists) throw new ErrorHandler(409, 'Account already logged, Try to edit it');

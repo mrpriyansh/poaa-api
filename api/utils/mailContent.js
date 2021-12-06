@@ -3,13 +3,13 @@ const mailContent = (accounts, name) => {
   //     return index + 1
   //       ? `<tr  style="background-color: #74bedb;">
   //                 <td style="text-align: center; padding: 25px">${account.name}</td>
-  //                 <td style="text-align: center; padding: 25px">${account.accountno}</td>
+  //                 <td style="text-align: center; padding: 25px">${account.accountNo}</td>
   //                 <td style="text-align: center; padding: 25px">${account.accountType}</td>
   //                 <td style="text-align: center; padding: 25px">${account.amount}</td>
   //             </tr>`
   //       : `<tr  style="background-color: #fff;">
   //             <td style="text-align: center;">${account.name}</td>
-  //             <td style="text-align: center;">${account.accountno}</td>
+  //             <td style="text-align: center;">${account.accountNo}</td>
   //             <td style="text-align: center;">${account.accountType}</td>
   //             <td style="text-align: center;">${account.amount}</td>
   //     </tr>`;
@@ -24,14 +24,14 @@ const mailContent = (accounts, name) => {
     if (index % 2 === 0) {
       accountsInfo += `<tr  style="background-color: #fff;">
                             <td style="text-align: center; color:#000; border: 1px solid #dddddd; padding: 0 25px">${accounts[index].name}</td>
-                            <td style="text-align: center; color:#000; border: 1px solid #dddddd; padding: 0 25px">${accounts[index].accountno}</td>
+                            <td style="text-align: center; color:#000; border: 1px solid #dddddd; padding: 0 25px">${accounts[index].accountNo}</td>
                             <td style="text-align: center; color:#000; border: 1px solid #dddddd; padding: 0 25px">${accounts[index].accountType}</td>
                             <td style="text-align: center; color:#000; border: 1px solid #dddddd; padding: 0 25px">${accounts[index].amount}</td>
                         </tr>`;
     } else {
       accountsInfo += `<tr  style="background-color: #74bedb;">
                           <td style="text-align: center; color:#000; border: 1px solid #dddddd; padding: 0 25px">${accounts[index].name}</td>
-                          <td style="text-align: center; color:#000; border: 1px solid #dddddd; padding: 0 25px">${accounts[index].accountno}</td>
+                          <td style="text-align: center; color:#000; border: 1px solid #dddddd; padding: 0 25px">${accounts[index].accountNo}</td>
                           <td style="text-align: center; color:#000; border: 1px solid #dddddd; padding: 0 25px">${accounts[index].accountType}</td>
                           <td style="text-align: center; color:#000; border: 1px solid #dddddd; padding: 0 25px">${accounts[index].amount}</td>
                       </tr>`;
