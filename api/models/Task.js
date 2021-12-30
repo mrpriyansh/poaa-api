@@ -18,6 +18,9 @@ const taskSchema = new mongoose.Schema(
     message: {
       type: String,
     },
+    listData: {
+      type: Object,
+    },
     misc: {
       type: Schema.Types.Mixed,
     },

@@ -17,7 +17,7 @@ module.exports = async (id, userDetails, taskId, globalTimeout = 3000) => {
   try {
     await List.updateOne({ _id: id }, { $set: { taskId } });
     const { list } = await List.findOne({ _id: id });
-    await process.send({ status: 'Running', progress: 'List generation started.' });
+    await process.send({ status: 'Running', progress: 'List generation started.', listData: list });
 
     const user = await User.findOne({ email: userDetails.email });
     if (user && !user.pPassword)
