@@ -11,7 +11,7 @@ module.exports = async (id, userDetails, taskId, globalTimeout = 3000) => {
   connectDB();
 
   const browser = await puppeteer.launch({
-    // headless: false,
+    headless: false,
     args: ['--no-sandbox', '--disable-setuid-sandbox'],
   });
   try {
@@ -31,12 +31,7 @@ module.exports = async (id, userDetails, taskId, globalTimeout = 3000) => {
     const page = await browser.newPage();
     await page.setDefaultTimeout(globalTimeout);
 
-    const arr = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-    for (const ind of arr) {
-      const isLoggedIn = await loginWebsite(page, userDetails, ind, globalTimeout);
-      console.log(ind, isLoggedIn);
-      if (isLoggedIn) break;
-    }
+    await loginWebsite(page, userDetails, globalTimeout);
 
     const accountButtonSelector = `a[name="HREF_Accounts"]`;
 

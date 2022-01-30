@@ -72,7 +72,7 @@ const getCaptcha = async imgBase64 => {
   }
 };
 
-const loginWebsite = async (page, userDetails, attemp, globalTimeout) => {
+const attempToLogin = async (page, userDetails, attemp, globalTimeout) => {
   const formDetails = {
     id: 'AuthenticationFG.USER_PRINCIPAL',
     password: 'AuthenticationFG.ACCESS_CODE',
@@ -138,6 +138,15 @@ const loginWebsite = async (page, userDetails, attemp, globalTimeout) => {
     }
     return false;
   }
+};
+
+const loginWebsite = async (page, userDetails, globalTimeout) => {
+  const arr = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+  for (const ind of arr) {
+    const isLoggedIn = await attempToLogin(page, userDetails, ind, globalTimeout);
+    if (isLoggedIn) return true;
+  }
+  return false;
 };
 
 module.exports = loginWebsite;
