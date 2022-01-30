@@ -2,9 +2,12 @@
 const User = require('../models/User');
 const { createWorker } = require('tesseract.js');
 const any = require('promise.any');
+const { ErrorHandler } = require('../../services/handleError');
 
 const shortWaitingTime = 1000;
 const wrongPwdTemplate = 'The maximum retry attempts allowed for this access mode are 5.';
+const wrongPwdMsg = 'Wrong Password! Please reset portal password, if not done!';
+const pwdExpMsg = 'Password Expired! Please reset portal password, if not done!';
 const dopUrl = 'https://dopagent.indiapost.gov.in/';
 
 const notFoundChangePwderrMsg = waitingTime => {
@@ -17,10 +20,10 @@ const notFoundChangePwderrMsg = waitingTime => {
   );
 };
 
-const checkForWrongPwd = async userDetails => {
+const removePwd = async (userDetails, msg) => {
   try {
     await User.updateOne({ email: userDetails.email }, { $unset: { pPassword: '' } });
-    await process.send({ error: 'Wrong Password! Please reset your password' });
+    await process.send({ error: msg });
   } catch (error) {
     // eslint-disable-next-line no-console
     console.log(error);
@@ -108,9 +111,15 @@ const attempToLogin = async (page, userDetails, attemp, globalTimeout) => {
       page.waitForSelector(changePwdButtonSelector),
     ]);
     await page.waitForSelector(changePwdButtonSelector, { timeout: shortWaitingTime });
+
+    const headingSelector = `div[id="PgHeading.Ra1.C2"]`;
+    await page.waitForSelector(headingSelector, { timeout: shortWaitingTime });
+    const headerTitle = await page.$eval(headingSelector, el => el.innerHTML);
+    if (headerTitle !== '<h1>Dashboard</h1>') throw new ErrorHandler(400, pwdExpMsg);
+
     return true;
   } catch (error) {
-    console.log(error);
+    console.log(error.message);
     if (
       error.message === notFoundChangePwderrMsg(globalTimeout) ||
       error.message === notFoundChangePwderrMsg(shortWaitingTime)
@@ -120,8 +129,10 @@ const attempToLogin = async (page, userDetails, attemp, globalTimeout) => {
       const regexTemp = /(.)* (The maximum retry attempts allowed for this access mode are 5.)/;
       const groups = bannerText.match(regexTemp);
       if (groups && groups.length >= 2 && groups[2] === wrongPwdTemplate) {
-        checkForWrongPwd(userDetails);
+        removePwd(userDetails, wrongPwdMsg);
       }
+    } else if (error.message === pwdExpMsg) {
+      removePwd(userDetails, pwdExpMsg);
     }
     return false;
   }
@@ -131,6 +142,7 @@ const loginWebsite = async (page, userDetails, globalTimeout) => {
   const arr = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
   for (const ind of arr) {
     const isLoggedIn = await attempToLogin(page, userDetails, ind, globalTimeout);
+    console.log(ind, isLoggedIn);
     if (isLoggedIn) return true;
   }
   return false;

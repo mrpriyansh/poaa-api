@@ -11,7 +11,7 @@ module.exports = async (id, userDetails, taskId, globalTimeout = 3000) => {
   connectDB();
 
   const browser = await puppeteer.launch({
-    headless: false,
+    // headless: false,
     args: ['--no-sandbox', '--disable-setuid-sandbox'],
   });
   try {
@@ -33,7 +33,7 @@ module.exports = async (id, userDetails, taskId, globalTimeout = 3000) => {
 
     await loginWebsite(page, userDetails, globalTimeout);
 
-    const accountButtonSelector = `a[name="HREF_Change Password"]`;
+    const accountButtonSelector = `a[name="HREF_Accounts"]`;
 
     await page.waitForSelector(accountButtonSelector, { timeout: 1000 });
     process.send({ progress: 'Successfully logged into DOP. Listing accounts.' });
