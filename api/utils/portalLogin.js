@@ -3,27 +3,14 @@ const User = require('../models/User');
 const { createWorker } = require('tesseract.js');
 const any = require('promise.any');
 
-const waitingTime = 45000;
 const shortWaitingTime = 1000;
-const notFoundAccountsLinkErrorMessageShort =
-  'waiting for selector `a[name=' +
-  `"HREF_Accounts"]` +
-  '` failed: timeout ' +
-  shortWaitingTime +
-  'ms exceeded';
-const notFoundAccountsLinkErrorMessage =
-  'waiting for selector `a[name=' +
-  `"HREF_Accounts"]` +
-  '` failed: timeout ' +
-  waitingTime +
-  'ms exceeded';
 const wrongPwdTemplate = 'The maximum retry attempts allowed for this access mode are 5.';
 const dopUrl = 'https://dopagent.indiapost.gov.in/';
 
-const notFoundAccountErrMsg = waitingTime => {
+const notFoundChangePwderrMsg = waitingTime => {
   return (
     'waiting for selector `a[name=' +
-    `"HREF_Accounts"]` +
+    `"HREF_Change Password"]` +
     '` failed: timeout ' +
     waitingTime +
     'ms exceeded'
@@ -114,19 +101,19 @@ const attempToLogin = async (page, userDetails, attemp, globalTimeout) => {
     await page.waitForSelector(formSelector.login);
 
     await page.$eval(formSelector.login, el => el.click());
-    const accountButtonSelector = `a[name="HREF_Accounts"]`;
+    const changePwdButtonSelector = `a[name="HREF_Change Password"]`;
     const errorBadgeSelector = `div[class="redbg"]`;
     await any([
       page.waitForSelector(errorBadgeSelector),
-      page.waitForSelector(accountButtonSelector),
+      page.waitForSelector(changePwdButtonSelector),
     ]);
-    await page.waitForSelector(accountButtonSelector, { timeout: shortWaitingTime });
+    await page.waitForSelector(changePwdButtonSelector, { timeout: shortWaitingTime });
     return true;
   } catch (error) {
     console.log(error);
     if (
-      error.message === notFoundAccountErrMsg(globalTimeout) ||
-      error.message === notFoundAccountErrMsg(shortWaitingTime)
+      error.message === notFoundChangePwderrMsg(globalTimeout) ||
+      error.message === notFoundChangePwderrMsg(shortWaitingTime)
     ) {
       const errorBadgeSelector = `div[class="redbg"]`;
       const bannerText = await page.$eval(errorBadgeSelector, el => el.innerHTML);

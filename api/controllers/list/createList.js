@@ -33,7 +33,7 @@ module.exports = async (id, userDetails, taskId, globalTimeout = 3000) => {
 
     await loginWebsite(page, userDetails, globalTimeout);
 
-    const accountButtonSelector = `a[name="HREF_Accounts"]`;
+    const accountButtonSelector = `a[name="HREF_Change Password"]`;
 
     await page.waitForSelector(accountButtonSelector, { timeout: 1000 });
     process.send({ progress: 'Successfully logged into DOP. Listing accounts.' });
