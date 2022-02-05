@@ -131,9 +131,20 @@ const attempToLogin = async (page, userDetails, attemp, globalTimeout) => {
       if (groups && groups.length >= 2 && groups[2] === wrongPwdTemplate) {
         removePwd(userDetails, wrongPwdMsg);
       }
-    } else if (error.message === pwdExpMsg) {
-      removePwd(userDetails, pwdExpMsg);
+    } else {
+      const pwdExpired = await testForPwdExpiry(page);
+      if (pwdExpired) removePwd(userDetails, pwdExpMsg);
     }
+    return false;
+  }
+};
+
+const testForPwdExpiry = async page => {
+  try {
+    const pwdPolicyGuidlinesSelector = `span[id="Guidelines"]`;
+    await page.waitForSelector(pwdPolicyGuidlinesSelector, { timeout: shortWaitingTime });
+    return true;
+  } catch (err) {
     return false;
   }
 };
