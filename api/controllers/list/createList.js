@@ -10,36 +10,46 @@ const dopUrl = 'https://dopagent.indiapost.gov.in/';
 module.exports = async (id, userDetails, taskId, globalTimeout = 3000) => {
   connectDB();
 
-  const browser = await puppeteer.launch({
-    // headless: false,
-    args: ['--no-sandbox', '--disable-setuid-sandbox'],
-  });
+  let browser = null;
+
   try {
     await List.updateOne({ _id: id }, { $set: { taskId } });
     const { list } = await List.findOne({ _id: id });
-    await process.send({ status: 'Running', progress: 'List generation started.', listData: list });
+    browser = await puppeteer.launch({
+      // headless: false,
+      headless: process.env.NODE_ENV === 'prod',
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    });
+    await process.send({
+      status: 'Running',
+      progress: 'List generation started.',
+      listData: list,
+      browserPid: browser.process().pid,
+    });
 
+    // launch browser instance
     const user = await User.findOne({ email: userDetails.email });
+
+    // pPassword will be empty
     if (user && !user.pPassword)
       throw new Error('Password not availablae! Please reset your password.');
-
+    // decrypt the password
     const dkey = crypto.createDecipher(process.env.ENCRYPT_ALGO, process.env.ENCRYPT_SALT);
     let password = dkey.update(user.pPassword, 'hex', 'utf8');
     password += dkey.final('utf-8');
-
     userDetails.pPassword = password;
+    // get new page
     const page = await browser.newPage();
     await page.setDefaultTimeout(globalTimeout);
 
     await loginWebsite(page, userDetails, globalTimeout);
-
+    // check for login
     const accountButtonSelector = `a[name="HREF_Accounts"]`;
 
     await page.waitForSelector(accountButtonSelector, { timeout: 1000 });
     process.send({ progress: 'Successfully logged into DOP. Listing accounts.' });
 
     await page.$eval(accountButtonSelector, el => el.click());
-
     const accountEnquireSelector = `a[id="Agent Enquire & Update Screen"]`;
     await page.waitForSelector(accountEnquireSelector);
     await page.$eval(accountEnquireSelector, el => el.click());
@@ -88,11 +98,13 @@ module.exports = async (id, userDetails, taskId, globalTimeout = 3000) => {
       refNo = await afterSelectingAcc(page, allAccounts, listData, listIndex);
       listsRefno.push(refNo);
     }
+    // await new Promise(resolve => setTimeout(resolve, 5000));
+
     await process.send({ misc: listsRefno, status: 'Done', progress: 100.0 });
   } catch (error) {
     await process.send({ error: error.message });
   } finally {
-    browser.close();
+    if (browser) browser.close();
   }
 };
 

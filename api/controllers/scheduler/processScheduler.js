@@ -5,14 +5,15 @@ module.exports = async (req, res, next) => {
   let gTask = null;
   let gTaskProcessor = null;
   try {
+    const taskProcessor = childProcess.fork('./api/controllers/scheduler/worker.js');
     const task = await Task.create({
       status: 'Initiated',
       type: req.params.type,
       progress: 'List generation on portal is inititated.',
+      pid: taskProcessor.pid,
     });
     gTask = task;
 
-    const taskProcessor = childProcess.fork('./api/controllers/scheduler/worker.js');
     gTaskProcessor = taskProcessor;
 
     taskProcessor.on('message', async function(payload) {

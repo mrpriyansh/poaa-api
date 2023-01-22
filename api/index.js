@@ -23,6 +23,7 @@ const useSSE = require('./middlewares/useSSE');
 const ssetest = require('./controllers/ssetest');
 const processScheduler = require('./controllers/scheduler/processScheduler');
 const updateStatus = require('./controllers/scheduler/updateStatus');
+const abortProcesses = require('./controllers/process/abortProcesses');
 
 router.post('/signup', (req, res, next) => {
   signUp(req, res, next);
@@ -83,6 +84,7 @@ router.post('/update-aslaas', async (req, res, next) => {
 
 router.get('/stream-random', useSSE, ssetest);
 
+router.post('/abortProcesses', userAuth, abortProcesses);
 router.post('/schedule/:type', userAuth, processScheduler);
 
 router.get('/status', [useSSE], updateStatus);

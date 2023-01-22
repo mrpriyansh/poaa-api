@@ -1,23 +1,21 @@
 /* eslint-disable consistent-return */
 const Task = require('../../models/Task');
 
-module.exports = async function(req, res) {
-  try {
-    const task1 = await Task.findOne({ _id: req.query.id });
-    if (task1.status !== 'Running' && task1.status !== 'Initiated') {
-      res.sendEventStreamData(task1, 'close');
-      return res.end();
-    }
+const utilFunction = async function(id, res) {
+  const task = await Task.findOne({ _id: id });
+  if (task.status !== 'Running' && task.status !== 'Initiated') {
+    res.sendEventStreamData(task, 'close');
+    return res.end();
+  }
 
-    res.sendEventStreamData(task1, 'update');
+  res.sendEventStreamData(task, 'update');
+};
+module.exports = async function(req, res, next) {
+  try {
+    utilFunction(req.query.id, res);
 
     const interval = setInterval(async function generateAndSendRandomNumber() {
-      const task = await Task.findOne({ _id: req.query.id });
-      if (task.status !== 'Running' && task.status !== 'Initiated') {
-        res.sendEventStreamData(task, 'close');
-        return res.end();
-      }
-      res.sendEventStreamData(task, 'update');
+      await utilFunction(req.query.id, res);
     }, 5000);
 
     // close
@@ -26,7 +24,7 @@ module.exports = async function(req, res) {
       res.end();
     });
   } catch (error) {
-    // eslint-disable-next-line no-console
-    console.log(error);
+    res.end();
+    next(error);
   }
 };

@@ -5,6 +5,7 @@ const taskSchema = new mongoose.Schema(
   {
     status: {
       type: String,
+      required: true,
     },
     error: {
       type: Schema.Types.Mixed,
@@ -17,6 +18,13 @@ const taskSchema = new mongoose.Schema(
     },
     message: {
       type: String,
+    },
+    pid: {
+      type: Number,
+      required: true,
+    },
+    browserPid: {
+      type: Number,
     },
     listData: {
       type: Object,
