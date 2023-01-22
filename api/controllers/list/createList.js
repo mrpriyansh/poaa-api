@@ -17,7 +17,7 @@ module.exports = async (id, userDetails, taskId, globalTimeout = 3000) => {
     const { list } = await List.findOne({ _id: id });
     browser = await puppeteer.launch({
       // headless: false,
-      headless: process.env.NODE_ENV === 'prod',
+      headless: process.env.NODE_ENV === 'production',
       args: ['--no-sandbox', '--disable-setuid-sandbox'],
     });
     await process.send({
