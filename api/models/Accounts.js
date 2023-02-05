@@ -27,7 +27,7 @@ const Account = new mongoose.Schema(
       type: Date,
       required: true,
     },
-    agentId1: {
+    agentId: {
       type: String,
       required: true,
     },

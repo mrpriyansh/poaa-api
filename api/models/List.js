@@ -5,7 +5,7 @@ const List = new mongoose.Schema(
     list: {
       type: Array,
     },
-    agentId1: {
+    agentId: {
       type: String,
     },
     status: {
