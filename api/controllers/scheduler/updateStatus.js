@@ -3,7 +3,7 @@ const Task = require('../../models/Task');
 
 const utilFunction = async function(id, res) {
   const task = await Task.findOne({ _id: id });
-  if (task.status !== 'Running' && task.status !== 'Initiated') {
+  if (task && task.status !== 'Running' && task.status !== 'Initiated') {
     res.sendEventStreamData(task, 'close');
     return res.end();
   }

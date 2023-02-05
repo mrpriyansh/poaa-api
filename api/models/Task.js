@@ -29,6 +29,9 @@ const taskSchema = new mongoose.Schema(
     listData: {
       type: Object,
     },
+    agentId: {
+      type: String,
+    },
     misc: {
       type: Schema.Types.Mixed,
     },

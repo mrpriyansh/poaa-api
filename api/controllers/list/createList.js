@@ -14,7 +14,7 @@ module.exports = async (id, userDetails, taskId, globalTimeout = 3000) => {
 
   try {
     await List.updateOne({ _id: id }, { $set: { taskId } });
-    const { list } = await List.findOne({ _id: id });
+    const { list, agentId } = await List.findOne({ _id: id });
     browser = await puppeteer.launch({
       // headless: false,
       headless: process.env.NODE_ENV === 'production',
@@ -24,6 +24,7 @@ module.exports = async (id, userDetails, taskId, globalTimeout = 3000) => {
       status: 'Running',
       progress: 'List generation started.',
       listData: list,
+      agentId,
       browserPid: browser.process().pid,
     });
 
