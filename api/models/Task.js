@@ -35,6 +35,9 @@ const taskSchema = new mongoose.Schema(
     misc: {
       type: Schema.Types.Mixed,
     },
+    globalTimeout: {
+      type: Number,
+    },
   },
   { timestamps: true }
 );

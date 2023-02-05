@@ -26,6 +26,7 @@ module.exports = async (id, userDetails, taskId, globalTimeout = 3000) => {
       listData: list,
       agentId,
       browserPid: browser.process().pid,
+      globalTimeout,
     });
 
     // launch browser instance
