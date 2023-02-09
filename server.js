@@ -14,7 +14,14 @@ const app = express();
 
 app.use(cors());
 app.use(express.json({ extended: false }));
-app.use(morgan('tiny'));
+
+app.use(
+  morgan('tiny', {
+    skip: req => {
+      return req.path === '/' && req.method === 'GET';
+    },
+  })
+);
 
 connectDB();
 
