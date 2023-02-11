@@ -33,9 +33,9 @@ const removePwd = async (userDetails, msg) => {
 };
 
 const getCaptcha = async imgBase64 => {
-  const worker = createWorker();
+  let worker = null;
   try {
-    await worker.load();
+    worker = await createWorker();
     await worker.loadLanguage('eng');
     await worker.initialize('eng');
 
@@ -58,7 +58,7 @@ const getCaptcha = async imgBase64 => {
   } catch (error) {
     throw error;
   } finally {
-    await worker.terminate();
+    if (worker) await worker.terminate();
   }
 };
 
