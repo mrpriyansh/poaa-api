@@ -119,7 +119,7 @@ const attempToLogin = async (page, userDetails, attemp, globalTimeout) => {
 
     return true;
   } catch (error) {
-    console.log(error.message);
+    console.log('Error while logging ', error.message);
     if (
       error.message === notFoundChangePwderrMsg(globalTimeout) ||
       error.message === notFoundChangePwderrMsg(shortWaitingTime)
