@@ -1,6 +1,5 @@
 /* eslint-disable no-restricted-syntax */
 const nodemailer = require('nodemailer');
-const { google } = require('googleapis');
 const Account = require('../models/Accounts');
 const { ErrorHandler } = require('../../services/handleError');
 const Installment = require('../models/Installment');
@@ -42,34 +41,24 @@ const insertInstallment = async (installment, next) => {
   }
 };
 
-const sendMail = async (content, mailId) => {
+const sendMail = async (
+  mailId = 'mr.priyanshgaharana+poaa_test@gmail.com',
+  content = '<p> Sample Mail! </p>',
+  subject = 'Important Information'
+) => {
   try {
-    const { OAuth2 } = google.auth;
-    const oauth2Client = new OAuth2(
-      process.env.GMAIL_CLIENT_ID,
-      process.env.GMAIL_CLIENT_SECRET,
-      'https://developers.google.com/oauthplayground'
-    );
-    oauth2Client.setCredentials({
-      refresh_token: process.env.REFRESH_TOKEN,
-    });
-    const accessToken = oauth2Client.getAccessToken();
     const smtpTransport = nodemailer.createTransport({
       service: 'gmail',
       auth: {
-        type: 'OAuth2',
         user: process.env.SERVER_MAIL_ADDRESS,
-        clientId: process.env.GMAIL_CLIENT_ID,
-        clientSecret: process.env.GMAIL_CLIENT_SECRET,
-        refreshToken: process.env.REFRESH_TOKEN,
-        accessToken,
+        pass: process.env.SERVER_MAIL_PWD,
       },
     });
     await smtpTransport.sendMail({
-      from: process.env.SERVER_MAIL_ADDRESS,
+      from: `POAA Officials <${process.env.SERVER_MAIL_ADDRESS}>`,
       to: mailId,
-      subject: 'Important Information',
-      text: `Checkout Accounts for Maturity`,
+      subject,
+      text: 'There is an update for you! Please check our website. https://poaa-ui.poaa.tk',
       html: content,
     });
     return { statusCode: 200, message: 'Mail send successfully' };

@@ -41,7 +41,6 @@ app.use((err, req, res, next) => {
 // });
 
 cron.schedule('5 0 * * *', async () => {
-  // cron.schedule('* * * * *', async () => {
   const users = await User.find({});
   // users.forEach(async agent => {
   //   const agentDetails = { name: agent.name, email: agent.email };
@@ -49,7 +48,11 @@ cron.schedule('5 0 * * *', async () => {
   // });
   // need to be optimised
   for (const index in users) {
-    const agentDetails = { name: users[index].name, email: users[index].email };
+    const agentDetails = {
+      name: users[index].name,
+      email: users[index].email,
+      agentId: users[index].userId,
+    };
     await cronJob(agentDetails); // eslint-disable-line no-await-in-loop
   }
 });
