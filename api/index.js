@@ -37,6 +37,9 @@ router.get('/userdetails', userAuth, (req, res, next) => {
 router.post('/addaccount', userAuth, (req, res, next) => {
   addAccount(req, res, next);
 });
+router.post('/addAllAccounts', userAuth, (req, res, next) => {
+  addAllAccounts(req, res, next);
+});
 router.get('/allaccounts', userAuth, (req, res, next) => {
   allAccounts(req, res, next);
 });
