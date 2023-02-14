@@ -5,7 +5,7 @@
   "main": "server.js",
   "license": "MIT",
   "scripts": {
-    "start": "nodemon server.js"
+    "start": "node node_modules/puppeteer/install.js &&nodemon server.js"
   },
   "dependencies": {
     "bcrypt": "^5.0.0",
