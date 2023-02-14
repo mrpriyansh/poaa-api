@@ -63,7 +63,7 @@ module.exports = async (req, res, next) => {
 
         list[listNo - 1].accounts.push({
           paidInstallments: payableInst,
-          accountno: inst.accountno,
+          accountNo: inst.accountNo,
           name: inst.name,
           amount: inst.amount,
           totalAmount: inst.amount * payableInst,

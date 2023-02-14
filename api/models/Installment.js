@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 
 const Installment = new mongoose.Schema(
   {
-    accountno: {
+    accountNo: {
       type: Number,
       required: true,
     },

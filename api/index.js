@@ -18,7 +18,12 @@ const allInstallments = require('./controllers/installment/allInstallments');
 const generateList = require('./controllers/list/generateList');
 const allLists = require('./controllers/list/allLists');
 const createList = require('./controllers/list/createList');
-const addAllAccounts = require('./controllers/account/addAllAccounts');
+const updateBulkAslaas = require('./controllers/account/updateBulkAslaas');
+const useSSE = require('./middlewares/useSSE');
+const ssetest = require('./controllers/ssetest');
+const processScheduler = require('./controllers/scheduler/processScheduler');
+const updateStatus = require('./controllers/scheduler/updateStatus');
+const abortProcesses = require('./controllers/process/abortProcesses');
 
 router.post('/signup', (req, res, next) => {
   signUp(req, res, next);
@@ -72,8 +77,19 @@ router.get('/getAllLists', userAuth, async (req, res, next) => {
   await allLists(req, res, next);
 });
 
-router.post('/createList', userAuth, async (req, res, next) => {
+router.post('/createList', async (req, res, next) => {
   await createList(req, res, next);
 });
+
+router.post('/update-aslaas', async (req, res, next) => {
+  await updateBulkAslaas(req, res, next);
+});
+
+router.get('/stream-random', useSSE, ssetest);
+
+router.post('/abortProcesses', userAuth, abortProcesses);
+router.post('/schedule/:type', userAuth, processScheduler);
+
+router.get('/status', [useSSE], updateStatus);
 
 module.exports = router;

@@ -1,32 +1,37 @@
 const mongoose = require('mongoose');
 
-const User = new mongoose.Schema(
-  {
-    name: {
-      type: String,
-      required: true,
-    },
-    email: {
-      type: String,
-      required: true,
-      unique: true,
-    },
-    password: {
-      type: String,
-      required: true,
-    },
-    mobile: {
-      type: Number,
-      required: true,
-    },
-    userType: {
-      type: String,
-      required: true,
-    },
+const User = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
   },
-  {
-    timestamps: true,
-  }
-);
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+  pAccountNo: {
+    type: String,
+  },
+  pPassword: {
+    type: String,
+  },
+  userId: {
+    type: String,
+  },
+
+  password: {
+    type: String,
+  },
+  mobile: {
+    type: Number,
+  },
+  userType: {
+    type: String,
+  },
+  test: {
+    type: String,
+  },
+});
 
 module.exports = mongoose.model('Users', User);

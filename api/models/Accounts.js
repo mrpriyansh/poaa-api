@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const { ObjectId } = require('mongoose');
 
 const Account = new mongoose.Schema(
   {
@@ -7,8 +6,8 @@ const Account = new mongoose.Schema(
       type: String,
       required: true,
     },
-    accountno: {
-      type: Number,
+    accountNo: {
+      type: String,
       required: true,
       unique: true,
     },
@@ -29,7 +28,7 @@ const Account = new mongoose.Schema(
       required: true,
     },
     agentId: {
-      type: ObjectId,
+      type: String,
       required: true,
     },
     mobile: {
