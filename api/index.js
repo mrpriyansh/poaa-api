@@ -46,9 +46,13 @@ router.put('/editaccount', userAuth, (req, res, next) => {
 router.delete('/deleteaccount', userAuth, (req, res, next) => {
   deleteAccount(req, res, next);
 });
-router.get('/send', async (_, res) => {
-  await sendMail();
-  res.json('Mail sent');
+router.get('/send-mail', async (_, res, next) => {
+  try {
+    await sendMail();
+    res.json('Mail sent');
+  } catch (err) {
+    next(err);
+  }
 });
 
 router.post('/addInstallment', userAuth, async (req, res, next) => {

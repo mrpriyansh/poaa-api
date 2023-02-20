@@ -46,25 +46,19 @@ const sendMail = async (
   content = '<p> Sample Mail! </p>',
   subject = 'Important Information'
 ) => {
-  try {
-    const smtpTransport = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: process.env.SERVER_MAIL_ADDRESS,
-        pass: process.env.SERVER_MAIL_PWD,
-      },
-    });
-    await smtpTransport.sendMail({
-      from: `POAA Officials <${process.env.SERVER_MAIL_ADDRESS}>`,
-      to: mailId,
-      subject,
-      text: 'There is an update for you! Please check our website. https://poaa-ui.poaa.tk',
-      html: content,
-    });
-    return { statusCode: 200, message: 'Mail send successfully' };
-  } catch (err) {
-    return err;
-  }
+  const smtpTransport = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.SERVER_MAIL_ADDRESS,
+      pass: process.env.SERVER_MAIL_PWD,
+    },
+  });
+  await smtpTransport.sendMail({
+    from: `POAA Officials <${process.env.SERVER_MAIL_ADDRESS}>`,
+    to: mailId,
+    subject,
+    text: 'There is an update for you! Please check our website. https://poaa-ui.poaa.tk',
+    html: content,
+  });
 };
-
 module.exports = { isNull, insertAccount, sendMail, insertInstallment };
