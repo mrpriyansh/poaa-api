@@ -5,7 +5,9 @@
   "main": "server.js",
   "license": "MIT",
   "scripts": {
-    "start": "nodemon server.js"
+    "start": "nodemon server.js",
+    "deploy": "./scripts/deploy_prod.sh",
+    "deploy:dev": "./scripts/deploy_dev.sh"
   },
   "dependencies": {
     "bcrypt": "^5.0.0",

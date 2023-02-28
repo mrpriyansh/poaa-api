@@ -19,6 +19,10 @@ module.exports = async (id, userDetails, taskId, globalTimeout = 3000) => {
       // headless: false,
       headless: process.env.NODE_ENV === 'production',
       args: ['--no-sandbox', '--disable-setuid-sandbox'],
+      executablePath:
+        process.env.NODE_ENV === 'production'
+          ? '/usr/bin/google-chrome'
+          : '/usr/bin/google-chrome-stable',
     });
     await process.send({
       status: 'Running',
