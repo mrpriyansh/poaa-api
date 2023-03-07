@@ -61,4 +61,12 @@ const sendMail = async (
     html: content,
   });
 };
-module.exports = { isNull, insertAccount, sendMail, insertInstallment };
+
+const formatDateReverse = date => {
+  const splits = date
+    .toISOString()
+    .split('T')[0]
+    .split('-');
+  return `${splits[2]}-${splits[1]}-${splits[0]}`;
+};
+module.exports = { isNull, insertAccount, sendMail, insertInstallment, formatDateReverse };

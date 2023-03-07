@@ -1,5 +1,6 @@
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable guard-for-in */
+/* eslint-disable import/extensions */
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
@@ -28,6 +29,7 @@ connectDB();
 const PORT = process.env.PORT || 4000;
 
 app.get('/', (req, res) => res.send('Server Up and running'));
+
 app.use('/api', require('./api/index.js'));
 // eslint-disable-next-line no-unused-vars
 app.use((err, req, res, next) => {
@@ -42,20 +44,19 @@ app.use((err, req, res, next) => {
 
 cron.schedule('5 0 * * *', async () => {
   const users = await User.find({});
-  // users.forEach(async agent => {
-  //   const agentDetails = { name: agent.name, email: agent.email };
-  //   await cronJob(agentDetails);
-  // });
-  // need to be optimised
-  for (const index in users) {
-    const agentDetails = {
-      name: users[index].name,
-      email: users[index].email,
-      agentId: users[index].userId,
-    };
-    await cronJob(agentDetails); // eslint-disable-line no-await-in-loop
-  }
+
+  const allPromises = users.map(agent => {
+    return cronJob({
+      name: agent.name,
+      email:
+        process.env === 'production' ? agent.email : 'mr.priyanshgaharana+poaa_testing@gmail.com',
+      agentId: agent.userId,
+    });
+  });
+
+  await Promise.all(allPromises);
 });
+
 app.listen(PORT, () => {
   // eslint-disable-next-line no-console
   console.log('Server(v1.0) is running on ', PORT);
