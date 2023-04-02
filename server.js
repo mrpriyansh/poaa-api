@@ -49,7 +49,9 @@ cron.schedule('5 0 * * *', async () => {
     return cronJob({
       name: agent.name,
       email:
-        process.env === 'production' ? agent.email : 'mr.priyanshgaharana+poaa_testing@gmail.com',
+        process.env.NODE_ENV === 'production'
+          ? agent.email
+          : 'mr.priyanshgaharana+poaa_testing@gmail.com',
       agentId: agent.userId,
     });
   });
