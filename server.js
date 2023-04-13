@@ -13,7 +13,14 @@ const User = require('./api/models/User');
 
 const app = express();
 
-app.use(cors());
+app.use(
+  cors({
+    origin:
+      process.env.NODE_ENV === 'production'
+        ? 'https://poaa-frontend.vercel.app'
+        : 'http://localhost:3000',
+  })
+);
 app.use(express.json({ extended: false }));
 
 app.use(
