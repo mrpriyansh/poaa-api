@@ -5,14 +5,13 @@ const connectDB = require('../../../config/db');
 const User = require('../../models/User');
 const List = require('../../models/List');
 const crypto = require('crypto');
+const any = require('promise.any');
 
-const dopUrl = 'https://dopagent.indiapost.gov.in/';
 module.exports = async (id, userDetails, taskId, globalTimeout = 3000) => {
-  connectDB();
-
   let browser = null;
 
   try {
+    await connectDB();
     await List.updateOne({ _id: id }, { $set: { taskId } });
     const { list, agentId } = await List.findOne({ _id: id });
     browser = await puppeteer.launch({
@@ -77,14 +76,17 @@ module.exports = async (id, userDetails, taskId, globalTimeout = 3000) => {
       await page.$eval(fetchButtonSelector, el => el.click());
 
       const tableStatsSelector = `#repeatDiv > h2 > span.right > span`;
+      const checkError = await checkForError(page, tableStatsSelector);
+      if (checkError !== 'NOT_FOUND') {
+        throw new Error(checkError);
+      }
 
-      await page.waitForSelector(tableStatsSelector);
       const bannerText = await page.$eval(tableStatsSelector, el => el.innerHTML);
       const regexTemp = /.* \d+ - \d+ of  (\d+) results/;
       const groups = bannerText.match(regexTemp);
       if (+groups[1] !== allAccounts.length) {
         if (listIndex == 2) return;
-        throw new Error(`Verify account no of all list`);
+        throw new Error(`Check all the accounts of list number ${listIndex + 1}`);
       }
 
       const txnModeSelector = `input[name="CustomAgentRDAccountFG.PAY_MODE_SELECTED_FOR_TRN"][value='C']`;
@@ -104,7 +106,6 @@ module.exports = async (id, userDetails, taskId, globalTimeout = 3000) => {
       refNo = await afterSelectingAcc(page, allAccounts, listData, listIndex);
       listsRefno.push(refNo);
     }
-    // await new Promise(resolve => setTimeout(resolve, 5000));
 
     await process.send({ misc: listsRefno, status: 'Done', progress: 100.0 });
   } catch (error) {
@@ -121,8 +122,10 @@ const afterSelectingAcc = async (page, allAccounts, listData, listIndex) => {
     await page.$eval(saveBtnSelector, el => el.click());
 
     const paySaveInstSelector = `input[name="Action.PAY_ALL_SAVED_INSTALLMENTS"]`;
-
-    await page.waitForSelector(paySaveInstSelector);
+    const checkError = await checkForError(page, paySaveInstSelector);
+    if (checkError !== 'NOT_FOUND') {
+      throw new Error(checkError);
+    }
 
     await process.send({ progress: `Chaning Installments of accounts of list ${listIndex + 1}` });
     for (const [ind, elem] of listData.accounts
@@ -176,6 +179,17 @@ const changeInstallments = async (page, ind, elem) => {
   }
 };
 
+// after clicking on the save button
+const checkForError = async (page, fallBackSelector) => {
+  try {
+    const redBannerSelector = `div[class="redbg"]`;
+    await any([page.waitForSelector(redBannerSelector), page.waitForSelector(fallBackSelector)]);
+    const bannerText = await page.$eval(redBannerSelector, el => el.innerHTML);
+    return bannerText.split('</a>')[1];
+  } catch (err) {
+    return 'NOT_FOUND';
+  }
+};
 const downloadList = () => {
   // const reportsTagSelector = `a[name="HREF_Reports"]`;
   // await page.$eval(reportsTagSelector, el => el.click());

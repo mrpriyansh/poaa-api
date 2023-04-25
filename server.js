@@ -35,7 +35,7 @@ connectDB();
 
 const PORT = process.env.PORT || 4000;
 
-app.get('/', (req, res) => res.send('Server Up and running'));
+app.get('/', (req, res) => res.send(`Server Up and running v${process.env.npm_package_version}`));
 
 app.use('/api', require('./api/index.js'));
 // eslint-disable-next-line no-unused-vars

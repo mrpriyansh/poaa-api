@@ -5,6 +5,7 @@ const any = require('promise.any');
 const { ErrorHandler } = require('../../services/handleError');
 
 const shortWaitingTime = 1000;
+// there is one more instance, change there if changing wrongPwdTemplate
 const wrongPwdTemplate = 'The maximum retry attempts allowed for this access mode are 5.';
 const wrongPwdMsg = 'Wrong Password! Please reset portal password, if not done!';
 const pwdExpMsg = 'Password Expired! Please reset portal password, if not done!';
