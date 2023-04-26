@@ -6,7 +6,9 @@
   "license": "MIT",
   "scripts": {
     "start": "nodemon server.js",
-    "deploy": "./scripts/deploy_prod.sh",
+    "deploy:patch": "./scripts/deploy_prod.sh patch",
+    "deploy:minor": "./scripts/deploy_prod.sh minor",
+    "deploy:major": "./scripts/deploy_prod.sh major",
     "deploy:dev": "./scripts/deploy_dev.sh"
   },
   "dependencies": {
