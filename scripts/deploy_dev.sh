@@ -1,4 +1,4 @@
-docker container kill poaa
-docker container remove poaa
+docker container kill poaa-api
+docker container remove poaa-api
 docker build . -t gcr.io/seedbox-299206/poaa-api
-docker run -d -p 4000:4000 --name gcr.io/seedbox-299206/poaa-api
+docker run -d -p 4000:8080 --name poaa-api gcr.io/seedbox-299206/poaa-api

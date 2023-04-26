@@ -26,4 +26,4 @@ ENV PORT=8080
 
 COPY . .
 
-CMD [ "node", "server.js" ]
+CMD [ "npm", "start"]
