@@ -33,7 +33,11 @@ const insertInstallment = async (installment, next) => {
       status: INSTALLMENT_PENDING,
     });
     if (exists) throw new ErrorHandler(409, 'Account already logged, Try to edit it');
-    await Installment.create({ ...installment, status: INSTALLMENT_PENDING });
+    await Installment.findOneAndUpdate(
+      { accountNo: installment.accountNo },
+      { ...installment, status: INSTALLMENT_PENDING },
+      { upsert: true }
+    );
     return 'Installment Logged Successfully';
   } catch (err) {
     next(err);

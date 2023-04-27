@@ -24,6 +24,7 @@ const ssetest = require('./controllers/ssetest');
 const processScheduler = require('./controllers/scheduler/processScheduler');
 const updateStatus = require('./controllers/scheduler/updateStatus');
 const abortProcesses = require('./controllers/process/abortProcesses');
+const revertList = require('./controllers/list/revertList');
 
 router.post('/signup', (req, res, next) => {
   signUp(req, res, next);
@@ -76,6 +77,10 @@ router.post('/generateList', userAuth, async (req, res, next) => {
 
 router.get('/getAllLists', userAuth, async (req, res, next) => {
   await allLists(req, res, next);
+});
+
+router.delete('/revertList/:listId', userAuth, async (req, res, next) => {
+  await revertList(req, res, next);
 });
 
 router.post('/createList', async (req, res, next) => {

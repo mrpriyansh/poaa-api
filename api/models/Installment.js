@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const Installment = new mongoose.Schema(
   {
     accountNo: {
-      type: Number,
+      type: String,
       required: true,
     },
     name: {
