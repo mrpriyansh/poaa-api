@@ -25,6 +25,7 @@ const processScheduler = require('./controllers/scheduler/processScheduler');
 const updateStatus = require('./controllers/scheduler/updateStatus');
 const abortProcesses = require('./controllers/process/abortProcesses');
 const revertList = require('./controllers/list/revertList');
+const updateUserDetails = require('./controllers/user/updateUserDetails');
 
 router.post('/signup', (req, res, next) => {
   signUp(req, res, next);
@@ -34,6 +35,9 @@ router.post('/signin', (req, res, next) => {
 });
 router.get('/userdetails', userAuth, (req, res, next) => {
   userDetails(req, res, next);
+});
+router.patch('/update-user-details', userAuth, (req, res, next) => {
+  updateUserDetails(req, res, next);
 });
 router.post('/addaccount', userAuth, (req, res, next) => {
   addAccount(req, res, next);
