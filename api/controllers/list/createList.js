@@ -6,6 +6,7 @@ const User = require('../../models/User');
 const List = require('../../models/List');
 const crypto = require('crypto');
 const any = require('promise.any');
+const { REFERENCE_NO_CREATED } = require('../../utils/constants');
 
 module.exports = async (id, userDetails, taskId, globalTimeout = 3000) => {
   let browser = null;
@@ -14,8 +15,8 @@ module.exports = async (id, userDetails, taskId, globalTimeout = 3000) => {
     await connectDB();
     await List.updateOne({ _id: id }, { $set: { taskId } });
     const { list, agentId } = await List.findOne({ _id: id });
+    // launch browser instance
     browser = await puppeteer.launch({
-      // headless: false,
       headless: process.env.NODE_ENV === 'production',
       args: ['--no-sandbox', '--disable-setuid-sandbox'],
       executablePath:
@@ -32,7 +33,6 @@ module.exports = async (id, userDetails, taskId, globalTimeout = 3000) => {
       globalTimeout,
     });
 
-    // launch browser instance
     const user = await User.findOne({ email: userDetails.email });
 
     // pPassword will be empty
@@ -42,12 +42,12 @@ module.exports = async (id, userDetails, taskId, globalTimeout = 3000) => {
     const dkey = crypto.createDecipher(process.env.ENCRYPT_ALGO, process.env.ENCRYPT_SALT);
     let password = dkey.update(user.pPassword, 'hex', 'utf8');
     password += dkey.final('utf-8');
-    userDetails.pPassword = password;
+    user.pPassword = password;
     // get new page
     const page = await browser.newPage();
     await page.setDefaultTimeout(globalTimeout);
 
-    await loginWebsite(page, userDetails, globalTimeout);
+    await loginWebsite(page, user, globalTimeout);
     // check for login
     const accountButtonSelector = `a[name="HREF_Accounts"]`;
 
@@ -106,6 +106,8 @@ module.exports = async (id, userDetails, taskId, globalTimeout = 3000) => {
       refNo = await afterSelectingAcc(page, allAccounts, listData, listIndex);
       listsRefno.push(refNo);
     }
+
+    await List.updateOne({ _id: id }, { $set: { status: REFERENCE_NO_CREATED } });
 
     await process.send({ misc: listsRefno, status: 'Done', progress: 100.0 });
   } catch (error) {

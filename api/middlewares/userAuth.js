@@ -8,7 +8,7 @@ module.exports = (req, res, next) => {
     }
     const token = req.headers.authorization.split(' ')[1];
     const decoded = jwt.decode(token);
-    req.user = decoded.user_data;
+    req.user = decoded;
     next();
   } catch (err) {
     next(err);
