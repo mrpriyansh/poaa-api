@@ -1,6 +1,6 @@
 {
   "name": "poaa",
-  "version": "2.2.1",
+  "version": "2.2.2",
   "description": "PostOffice Agent Assistant",
   "main": "server.js",
   "license": "MIT",
