@@ -18,7 +18,7 @@ app.use(
     origin:
       process.env.NODE_ENV === 'production'
         ? 'https://poaa-frontend.vercel.app'
-        : 'http://localhost:3000',
+        : 'http://localhost:5173',
   })
 );
 app.use(express.json({ extended: false }));

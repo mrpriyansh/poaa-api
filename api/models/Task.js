@@ -30,7 +30,7 @@ const taskSchema = new mongoose.Schema(
       type: Object,
     },
     agentId: {
-      type: String,
+      type: Schema.Types.ObjectId,
     },
     misc: {
       type: Schema.Types.Mixed,
