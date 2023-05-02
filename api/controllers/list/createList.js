@@ -4,7 +4,7 @@ const loginWebsite = require('../../utils/portalLogin');
 const connectDB = require('../../../config/db');
 const User = require('../../models/User');
 const List = require('../../models/List');
-const crypto = require('crypto');
+const CryptoJS = require('crypto-js');
 const any = require('promise.any');
 const { REFERENCE_NO_CREATED } = require('../../utils/constants');
 
@@ -39,9 +39,9 @@ module.exports = async (id, userDetails, taskId, globalTimeout = 3000) => {
     if (user && !user.pPassword)
       throw new Error('Password not availablae! Please reset your password.');
     // decrypt the password
-    const dkey = crypto.createDecipher(process.env.ENCRYPT_ALGO, process.env.ENCRYPT_SALT);
-    let password = dkey.update(user.pPassword, 'hex', 'utf8');
-    password += dkey.final('utf-8');
+    const password = CryptoJS.AES.decrypt(user.pPassword, process.env.ENCRYPT_SALT).toString(
+      CryptoJS.enc.Utf8
+    );
     user.pPassword = password;
     // get new page
     const page = await browser.newPage();

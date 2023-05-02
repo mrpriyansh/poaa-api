@@ -15,10 +15,7 @@ const app = express();
 
 app.use(
   cors({
-    origin:
-      process.env.NODE_ENV === 'production'
-        ? 'https://poaa-frontend.vercel.app'
-        : 'http://localhost:5173',
+    origin: process.env.NODE_ENV === 'production' ? 'https://poaa-frontend.vercel.app' : '*',
   })
 );
 app.use(express.json({ extended: false }));
