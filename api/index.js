@@ -26,7 +26,7 @@ const updateStatus = require('./controllers/scheduler/updateStatus');
 const abortProcesses = require('./controllers/process/abortProcesses');
 const revertList = require('./controllers/list/revertList');
 const updateUserDetails = require('./controllers/user/updateUserDetails');
-const getBanner = require('./controllers/banner/getBanner');
+const getFeatureFlag = require('./controllers/featureFlag/getFeatureFlag');
 
 router.post('/signup', (req, res, next) => {
   signUp(req, res, next);
@@ -103,6 +103,6 @@ router.post('/schedule/:type', userAuth, processScheduler);
 
 router.get('/status', [useSSE], updateStatus);
 
-router.get('/feature-flags', getBanner);
+router.get('/feature-flag', getFeatureFlag);
 
 module.exports = router;
