@@ -27,6 +27,7 @@ const abortProcesses = require('./controllers/process/abortProcesses');
 const revertList = require('./controllers/list/revertList');
 const updateUserDetails = require('./controllers/user/updateUserDetails');
 const getFeatureFlag = require('./controllers/featureFlag/getFeatureFlag');
+const unpaidInstallments = require('./controllers/installment/unpaidInstallments');
 
 router.post('/signup', (req, res, next) => {
   signUp(req, res, next);
@@ -75,6 +76,8 @@ router.delete('/deleteInstallment', userAuth, async (req, res, next) => {
 router.get('/getAllInstallments', userAuth, async (req, res, next) => {
   await allInstallments(req, res, next);
 });
+
+router.get('/unpaidInstallments', userAuth, unpaidInstallments);
 
 router.post('/generateList', userAuth, async (req, res, next) => {
   await generateList(req, res, next);
