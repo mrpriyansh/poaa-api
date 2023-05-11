@@ -29,7 +29,8 @@
     "puppeteer": "^10.2.0",
     "tesseract.js": "4.0.2",
     "twilio": "^3.49.0",
-    "uuid": "^8.3.2"
+    "uuid": "^8.3.2",
+    "web-push": "^3.6.1"
   },
   "devDependencies": {
     "eslint": "^6.8.0",
@@ -57,7 +58,8 @@
     "rules": {
       "prettier/prettier": "error",
       "no-underscore-dangle": 0,
-      "func-names": 0
+      "func-names": 0,
+      "consistent-return": 0
     }
   },
   "prettier": {

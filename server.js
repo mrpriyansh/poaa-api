@@ -10,6 +10,7 @@ const { handleError } = require('./services/handleError');
 
 const cronJob = require('./api/utils/cronJob');
 const User = require('./api/models/User');
+const webPush = require('./config/webPush');
 
 const app = express();
 
@@ -29,6 +30,8 @@ app.use(
 );
 
 connectDB();
+
+webPush();
 
 const PORT = process.env.PORT || 4000;
 

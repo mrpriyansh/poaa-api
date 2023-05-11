@@ -28,6 +28,8 @@ const revertList = require('./controllers/list/revertList');
 const updateUserDetails = require('./controllers/user/updateUserDetails');
 const getFeatureFlag = require('./controllers/featureFlag/getFeatureFlag');
 const unpaidInstallments = require('./controllers/installment/unpaidInstallments');
+const subscribe = require('./controllers/notification/subscribe');
+const broadcast = require('./controllers/notification/broadcast');
 
 router.post('/signup', (req, res, next) => {
   signUp(req, res, next);
@@ -107,5 +109,9 @@ router.post('/schedule/:type', userAuth, processScheduler);
 router.get('/status', [useSSE], updateStatus);
 
 router.get('/feature-flag', getFeatureFlag);
+
+router.post('/notification/subscribe', subscribe);
+
+router.get('/notification/broadcast', broadcast);
 
 module.exports = router;
