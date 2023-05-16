@@ -20,7 +20,7 @@ COPY yarn.lock ./
 
 RUN yarn install
 
-ENV NODE_ENV=production
+# ENV NODE_ENV=production
 ENV PORT=8080
 
 

@@ -12,6 +12,7 @@
     "deploy:dev": "./scripts/deploy_dev.sh"
   },
   "dependencies": {
+    "@google-cloud/storage": "^6.10.1",
     "bcrypt": "^5.0.0",
     "child_process": "^1.0.2",
     "cors": "^2.8.5",

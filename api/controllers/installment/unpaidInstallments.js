@@ -22,7 +22,6 @@ module.exports = async (req, res, next) => {
         },
       },
     }).sort({ name: 1 });
-    console.log(allInstallments.length);
     res.json(allInstallments);
   } catch (err) {
     next(err);
