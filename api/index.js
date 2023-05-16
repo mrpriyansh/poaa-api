@@ -113,5 +113,4 @@ router.get('/feature-flag', getFeatureFlag);
 router.post('/notification/subscribe', subscribe);
 
 router.get('/notification/broadcast', broadcast);
-
 module.exports = router;
