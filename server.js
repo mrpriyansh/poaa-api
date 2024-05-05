@@ -16,7 +16,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: process.env.NODE_ENV === 'production' ? 'https://poaa-frontend.vercel.app' : '*',
+    origin: '*',
   })
 );
 app.use(express.json({ extended: false }));
