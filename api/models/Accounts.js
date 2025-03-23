@@ -35,6 +35,10 @@ const Account = new mongoose.Schema(
     mobile: {
       type: Number,
     },
+    cifid: {
+      type: String,
+      required: true,
+    },
   },
   {
     timestamps: true,
