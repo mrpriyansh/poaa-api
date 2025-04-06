@@ -70,5 +70,5 @@ cron.schedule('5 0 * * *', async () => {
 
 app.listen(PORT, () => {
   // eslint-disable-next-line no-console
-  console.log('Server(v1.0) is running on ', PORT);
+  console.log(`Server ${process.env.npm_package_version} is running on ${PORT}`);
 });
