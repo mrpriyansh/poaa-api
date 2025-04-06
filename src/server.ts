@@ -1,3 +1,4 @@
+// @ts-nocheck
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable guard-for-in */
 /* eslint-disable import/extensions */
@@ -5,20 +6,19 @@ const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
 const cron = require('node-cron');
-const connectDB = require('./config/db');
+import connectDB from './config/db';
+
 const { handleError } = require('./services/handleError');
 
 const cronJob = require('./api/utils/cronJob');
 const User = require('./api/models/User');
+const webPush = require('./config/webPush');
 
 const app = express();
 
 app.use(
   cors({
-    origin:
-      process.env.NODE_ENV === 'production'
-        ? 'https://poaa-frontend.vercel.app'
-        : 'http://localhost:3000',
+    origin: '*',
   })
 );
 app.use(express.json({ extended: false }));
@@ -32,6 +32,8 @@ app.use(
 );
 
 connectDB();
+
+webPush();
 
 const PORT = process.env.PORT || 4000;
 

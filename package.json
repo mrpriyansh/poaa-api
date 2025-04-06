@@ -1,20 +1,23 @@
 {
   "name": "poaa",
-  "version": "2.0.0",
+  "version": "5.0.0",
   "description": "PostOffice Agent Assistant",
   "main": "server.js",
   "license": "MIT",
   "scripts": {
-    "start": "nodemon server.js",
+    "start": "node dist/server.js",
+    "dev": "nodemon src/server.ts",
     "deploy:patch": "./scripts/deploy_prod.sh patch",
     "deploy:minor": "./scripts/deploy_prod.sh minor",
     "deploy:major": "./scripts/deploy_prod.sh major",
     "deploy:dev": "./scripts/deploy_dev.sh"
   },
   "dependencies": {
+    "@google-cloud/storage": "^6.10.1",
     "bcrypt": "^5.0.0",
     "child_process": "^1.0.2",
     "cors": "^2.8.5",
+    "crypto-js": "^4.1.1",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
     "jsonwebtoken": "^8.5.1",
@@ -28,9 +31,13 @@
     "puppeteer": "^10.2.0",
     "tesseract.js": "4.0.2",
     "twilio": "^3.49.0",
-    "uuid": "^8.3.2"
+    "uuid": "^8.3.2",
+    "web-push": "^3.6.7"
   },
   "devDependencies": {
+    "@types/express": "^5.0.1",
+    "@types/node": "^22.14.0",
+    "@types/web-push": "^3.6.4",
     "eslint": "^6.8.0",
     "eslint-config-airbnb-base": "^14.0.0",
     "eslint-config-prettier": "^6.10.0",
@@ -38,7 +45,9 @@
     "eslint-plugin-prettier": "^3.1.2",
     "husky": "^4.2.3",
     "lint-staged": "^10.0.7",
-    "prettier": "^1.19.1"
+    "prettier": "^1.19.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
   },
   "husky": {
     "hooks": {
@@ -56,7 +65,8 @@
     "rules": {
       "prettier/prettier": "error",
       "no-underscore-dangle": 0,
-      "func-names": 0
+      "func-names": 0,
+      "consistent-return": 0
     }
   },
   "prettier": {
@@ -67,6 +77,11 @@
   },
   "lint-staged": {
     "*.js": [
+      "eslint --fix",
+      "git add"
+    ],
+    "*.ts": [
+      "npx tsc --noEmit",
       "eslint --fix",
       "git add"
     ]

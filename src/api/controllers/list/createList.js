@@ -4,9 +4,12 @@ const loginWebsite = require('../../utils/portalLogin');
 const connectDB = require('../../../config/db');
 const User = require('../../models/User');
 const List = require('../../models/List');
-const crypto = require('crypto');
+const CryptoJS = require('crypto-js');
 const any = require('promise.any');
+const fs = require('fs').promises;
 const { REFERENCE_NO_CREATED } = require('../../utils/constants');
+const { uploadFile } = require('../../../config/storageUtils');
+const { formatDate, checkFileExist } = require('../../utils');
 
 module.exports = async (id, userDetails, taskId, globalTimeout = 3000) => {
   let browser = null;
@@ -39,9 +42,9 @@ module.exports = async (id, userDetails, taskId, globalTimeout = 3000) => {
     if (user && !user.pPassword)
       throw new Error('Password not availablae! Please reset your password.');
     // decrypt the password
-    const dkey = crypto.createDecipher(process.env.ENCRYPT_ALGO, process.env.ENCRYPT_SALT);
-    let password = dkey.update(user.pPassword, 'hex', 'utf8');
-    password += dkey.final('utf-8');
+    const password = CryptoJS.AES.decrypt(user.pPassword, process.env.ENCRYPT_SALT).toString(
+      CryptoJS.enc.Utf8
+    );
     user.pPassword = password;
     // get new page
     const page = await browser.newPage();
@@ -104,12 +107,21 @@ module.exports = async (id, userDetails, taskId, globalTimeout = 3000) => {
         await page.$eval(accCBSelector, el => el.click());
       }
       refNo = await afterSelectingAcc(page, allAccounts, listData, listIndex);
-      listsRefno.push(refNo);
+      listsRefno.push({ refNo });
     }
 
+    await process.send({
+      mis: listsRefno,
+      progress: 'List has been generated, file downloading is in progress!',
+    });
     await List.updateOne({ _id: id }, { $set: { status: REFERENCE_NO_CREATED } });
 
-    await process.send({ misc: listsRefno, status: 'Done', progress: 100.0 });
+    const lists = [];
+    for (const list of listsRefno) {
+      const url = await downloadList(page, list.refNo, globalTimeout);
+      lists.push({ refNo: list.refNo, url });
+    }
+    await process.send({ misc: lists, status: 'Done', progress: 100.0 });
   } catch (error) {
     await process.send({ error: error.message });
   } finally {
@@ -192,78 +204,39 @@ const checkForError = async (page, fallBackSelector) => {
     return 'NOT_FOUND';
   }
 };
-const downloadList = () => {
-  // const reportsTagSelector = `a[name="HREF_Reports"]`;
-  // await page.$eval(reportsTagSelector, el => el.click());
-  // const refNoFieldSelector = `input[name="CustomAgentRDAccountFG.EBANKING_REF_NUMBER"]`;
-  // await page.waitForSelector(refNoFieldSelector);
-  // await page.$eval(refNoFieldSelector, (el, value) => (el.value = value), listRefNo);
-  // const reportSearchBtnSelector = `input[name="Action.SEARCH_INSTALLMENT_DETAILS"]`;
-  // await page.$eval(reportSearchBtnSelector, el => el.click());
-  // const fileTypeSelector = `select[name="CustomAgentRDAccountFG.OUTFORMAT"]`;
-  // await page.waitForSelector(fileTypeSelector);
-  // await page.select(fileTypeSelector, '4');
-  // // await page.select(fileTypeSelectId, '4');
-  // const downloadBtnSelector = `input[name="Action.GENERATE_REPORT"]`;
-  // const results = [];
-  // let paused = false;
-  // let pausedRequests = [];
-  // await page.$eval(downloadBtnSelector, el => el.click());
-  // const nextRequest = () => {
-  //   if (pausedRequests.length === 0) paused = false;
-  //   else {
-  //     pausedRequests.shift()();
-  //   }
-  //   console.log('sdfs');
-  // };
-  // await page.setRequestInterception(true);
-  // // page.on('request', request => {
-  //   console.log('sdaf12');
-  //   if (paused) pausedRequests.push(() => request.continue());
-  //   else {
-  //     paused = true;
-  //     request.continue();
-  //   }
-  // });
-  // page.on('requestfinished', async request => {
-  //   console.log('13');
-  //   const response = await request.response();
-  //   let responseBody;
-  //   if (request.redirectChain().length === 0) {
-  //     responseBody = await response.buffer();
-  //   }
-  //   results.push(responseBody);
-  //   console.log(responseBody);
-  //   nextRequest();
-  // });
-  // page.on('requestfailed', request => {
-  //   nextRequest();
-  // });
-  // console.log(results);
-  // page.on('response', async response => {
-  //   try {
-  //     if (
-  //       response._headers['content-disposition'] ===
-  //       'attachment; filename="RDInstallmentReport11-11-2021.xls"'
-  //     ) {
-  //       console.log(response);
-  //       console.log('fsdasd');
-  //       const te = await response.buffer();
-  //       console.log(te);
-  //       console.log(response.body);
-  //       // console.log(response.postData());
-  //       // console.log(response.headers());
-  //     }
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // });
-  // const [response] = await Promise.all([
-  //   page.waitForResponse(resp => resp.url().includes('Finacle;jsessionid')),
-  // ]);
-  // console.log(response);
-  // const buffer = await response.buffer();
-  // console.log('buffer');
-  // console.log(buffer);
-  // }0
+const downloadList = async (page, listRefNo, globalTimeout) => {
+  try {
+    const reportsTagSelector = `a[name="HREF_Reports"]`;
+    await page.waitForSelector(reportsTagSelector);
+    await page.$eval(reportsTagSelector, el => el.click());
+    const refNoFieldSelector = `input[name="CustomAgentRDAccountFG.EBANKING_REF_NUMBER"]`;
+    await page.waitForSelector(refNoFieldSelector);
+    await page.$eval(refNoFieldSelector, (el, value) => (el.value = value), listRefNo);
+    const reportSearchBtnSelector = `input[name="Action.SEARCH_INSTALLMENT_DETAILS"]`;
+    await page.$eval(reportSearchBtnSelector, el => el.click());
+    const fileTypeSelector = `select[name="CustomAgentRDAccountFG.OUTFORMAT"]`;
+    await page.waitForSelector(fileTypeSelector);
+    await page.select(fileTypeSelector, '4');
+    const downloadBtnSelector = `input[name="Action.GENERATE_REPORT"]`;
+
+    const downloadPath = `/tmp/${listRefNo}`;
+    await fs.mkdir(downloadPath);
+    await page._client.send('Page.setDownloadBehavior', {
+      behavior: 'allow',
+      downloadPath: downloadPath,
+    });
+    const fileName = `RDInstallmentReport${formatDate(new Date())}.xls`;
+    await page.$eval(downloadBtnSelector, el => el.click());
+    const filePath = `${downloadPath}/${fileName}`;
+    await checkFileExist(filePath, globalTimeout);
+
+    const destination = `Reports/${listRefNo}/${fileName}`;
+    await uploadFile(filePath, {
+      destination,
+      public: true,
+    });
+    return `https://storage.googleapis.com/poaa-api/${destination}`;
+  } catch (err) {
+    throw err;
+  }
 };

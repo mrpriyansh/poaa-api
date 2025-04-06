@@ -1,5 +1,6 @@
 /* eslint-disable no-restricted-syntax */
 const nodemailer = require('nodemailer');
+const fs = require('fs');
 const Account = require('../models/Accounts');
 const { ErrorHandler } = require('../../services/handleError');
 const Installment = require('../models/Installment');
@@ -73,4 +74,50 @@ const formatDateReverse = date => {
     .split('-');
   return `${splits[2]}-${splits[1]}-${splits[0]}`;
 };
-module.exports = { isNull, insertAccount, sendMail, insertInstallment, formatDateReverse };
+
+const reverseString = str => {
+  return str
+    .split('')
+    .reverse()
+    .join('');
+};
+
+const formatDate = date => {
+  return date
+    .toJSON()
+    .slice(0, 10)
+    .split('-')
+    .reverse()
+    .join('-');
+};
+
+const checkFileExist = async (path, timeout = 30000) => {
+  let totalTime = 0;
+  const checkTime = timeout / 10;
+
+  // eslint-disable-next-line no-return-await
+  return await new Promise(resolve => {
+    const timer = setInterval(function() {
+      totalTime += checkTime;
+
+      const fileExists = fs.existsSync(path);
+
+      if (fileExists || totalTime >= timeout) {
+        clearInterval(timer);
+
+        resolve(fileExists);
+      }
+    }, checkTime);
+  });
+};
+
+module.exports = {
+  isNull,
+  insertAccount,
+  sendMail,
+  insertInstallment,
+  formatDateReverse,
+  reverseString,
+  formatDate,
+  checkFileExist,
+};

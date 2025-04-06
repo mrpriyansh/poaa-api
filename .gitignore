@@ -4,3 +4,8 @@
 *.swp
 eng.traineddata
 yarn-error.log
+
+gcloud.json
+
+# Directory generated after transpilled code
+dist/
