@@ -1,3 +1,4 @@
+// @ts-nocheck
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable guard-for-in */
 /* eslint-disable import/extensions */
@@ -5,7 +6,8 @@ const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
 const cron = require('node-cron');
-const connectDB = require('./config/db');
+import connectDB from './config/db';
+
 const { handleError } = require('./services/handleError');
 
 const cronJob = require('./api/utils/cronJob');
