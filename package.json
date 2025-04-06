@@ -5,7 +5,8 @@
   "main": "server.js",
   "license": "MIT",
   "scripts": {
-    "start": "nodemon src/server.js",
+    "start": "node dist/server.js",
+    "dev": "nodemon src/server.ts",
     "deploy:patch": "./scripts/deploy_prod.sh patch",
     "deploy:minor": "./scripts/deploy_prod.sh minor",
     "deploy:major": "./scripts/deploy_prod.sh major",
@@ -44,6 +45,7 @@
     "husky": "^4.2.3",
     "lint-staged": "^10.0.7",
     "prettier": "^1.19.1",
+    "ts-node": "^10.9.2",
     "typescript": "^5.8.3"
   },
   "husky": {
