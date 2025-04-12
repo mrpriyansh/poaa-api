@@ -63,7 +63,7 @@
       "git add"
     ],
     "*.ts": [
-       "tsc --project tsconfig.json",
+      "tsc --project tsconfig.json --noEmit",
       "eslint --fix",
       "git add"
     ]
