@@ -2,17 +2,17 @@
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable guard-for-in */
 /* eslint-disable import/extensions */
-const express = require('express');
-const cors = require('cors');
-const morgan = require('morgan');
-const cron = require('node-cron');
-import connectDB from './config/db';
+import express from 'express';
+import cors from 'cors';
+import morgan from 'morgan';
+import cron from 'node-cron';
 
-const { handleError } = require('./services/handleError');
+import connectDB from './config/db.js';
 
-const cronJob = require('./api/utils/cronJob');
-const User = require('./api/models/User');
-const webPush = require('./config/webPush');
+const { handleError } = require('./services/handleError.js');
+const cronJob = require('./api/utils/cronJob.js');
+const User = require('./api/models/User.js');
+const webPush = require('./config/webPush.js');
 
 const app = express();
 

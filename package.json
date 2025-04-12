@@ -2,10 +2,11 @@
   "name": "poaa",
   "version": "5.0.1",
   "description": "PostOffice Agent Assistant",
-  "main": "server.js",
+  "main": "dist/server.js",
   "license": "MIT",
+  "type": "commonjs",
   "scripts": {
-    "start": "node dist/server.js",
+    "start": "tsc && node dist/server.js",
     "dev": "nodemon src/server.ts",
     "deploy:patch": "./scripts/deploy_prod.sh patch",
     "deploy:minor": "./scripts/deploy_prod.sh minor",
