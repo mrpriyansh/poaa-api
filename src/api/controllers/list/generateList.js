@@ -13,7 +13,7 @@ const {
 
 module.exports = async (req, res, next) => {
   try {
-    await dbTransactionWrapper(async session => {
+    await dbTransactionWrapper(async (session) => {
       const installments = await Installment.aggregate([
         {
           $match: {
@@ -48,7 +48,7 @@ module.exports = async (req, res, next) => {
       const list = [];
       let curListRemaining = 0;
       let listNo = 0;
-      installments.forEach(inst => {
+      installments.forEach((inst) => {
         let remainingAmount = inst.total;
         let remainingInstallment = inst.installments;
         while (remainingAmount > 0) {

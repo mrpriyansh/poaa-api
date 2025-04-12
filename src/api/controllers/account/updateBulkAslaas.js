@@ -1,10 +1,9 @@
-/* eslint-disable */
 const puppeteer = require('puppeteer');
 const User = require('../../models/User');
 const connectDB = require('../../../config/db');
 const loginWebsite = require('../../utils/portalLogin');
 
-module.exports = async allAccounts => {
+module.exports = async (allAccounts) => {
   connectDB();
   if (!allAccounts.length) throw new Error('No valid accounts found');
   await process.send({ status: 'Started' });
@@ -33,11 +32,11 @@ module.exports = async allAccounts => {
 
     const accountButtonSelector = `a[name="HREF_Accounts"]`;
     await page.waitForSelector(accountButtonSelector, { timeout: 10000 });
-    await page.$eval(accountButtonSelector, el => el.click());
+    await page.$eval(accountButtonSelector, (el) => el.click());
 
     const accountEnquireSelector = `a[name="HREF_Update ASLAAS Number"]`;
     await page.waitForSelector(accountEnquireSelector);
-    await page.$eval(accountEnquireSelector, el => el.click());
+    await page.$eval(accountEnquireSelector, (el) => el.click());
     const succ = [],
       fail = [];
     for (const ind in allAccounts) {
@@ -65,7 +64,7 @@ const updateAslaas = async (page, account) => {
     if (!account.accountNo.length || !account.aslaasNo.length) throw new Error('Invalid details');
     const accountEnquireSelector = `a[name="HREF_Update ASLAAS Number"]`;
     await page.waitForSelector(accountEnquireSelector);
-    await page.$eval(accountEnquireSelector, el => el.click());
+    await page.$eval(accountEnquireSelector, (el) => el.click());
     const aslaasFormTags = {
       accountNo: 'CustomAgentAslaasNoFG.RD_ACC_NO',
       aslaasNo: 'CustomAgentAslaasNoFG.ASLAAS_NO',
@@ -91,10 +90,10 @@ const updateAslaas = async (page, account) => {
       (el, value) => (el.value = value),
       account.aslaasNo
     );
-    await page.$eval(aslaasFormSelector.continueButton, el => el.click());
+    await page.$eval(aslaasFormSelector.continueButton, (el) => el.click());
 
     await page.waitForSelector(aslaasFormSelector.addButton);
-    await page.$eval(aslaasFormSelector.addButton, el => el.click());
+    await page.$eval(aslaasFormSelector.addButton, (el) => el.click());
 
     await page.waitForSelector(aslaasFormSelector.continueButton);
     return false;

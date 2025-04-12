@@ -1,4 +1,3 @@
-/* eslint-disable*/
 const User = require('../models/User');
 const { createWorker } = require('tesseract.js');
 const any = require('promise.any');
@@ -11,7 +10,7 @@ const wrongPwdMsg = 'Wrong Password! Please reset portal password, if not done!'
 const pwdExpMsg = 'Password Expired! Please reset portal password, if not done!';
 const dopUrl = 'https://dopagent.indiapost.gov.in/';
 
-const notFoundChangePwderrMsg = waitingTime => {
+const notFoundChangePwderrMsg = (waitingTime) => {
   return (
     'waiting for selector `a[name=' +
     `"HREF_Change Password"]` +
@@ -26,14 +25,13 @@ const removePwd = async (userDetails, msg) => {
     await User.updateOne({ email: userDetails.email }, { $unset: { pPassword: '' } });
     await process.send({ error: msg });
   } catch (error) {
-    // eslint-disable-next-line no-console
     console.log(error);
   } finally {
     process.disconnect();
   }
 };
 
-const getCaptcha = async imgBase64 => {
+const getCaptcha = async (imgBase64) => {
   let worker = null;
   try {
     worker = await createWorker();
@@ -83,7 +81,7 @@ const attempToLogin = async (page, userDetails, attemp, globalTimeout) => {
       progress: `Trying to loggin to website. Attempt ${Math.ceil(attemp / 3)}`,
     });
     const [response] = await Promise.all([
-      page.waitForResponse(resp => resp.url().includes('AuthenticationController;jsessionid')),
+      page.waitForResponse((resp) => resp.url().includes('AuthenticationController;jsessionid')),
       page.goto(dopUrl),
     ]);
 
@@ -104,7 +102,7 @@ const attempToLogin = async (page, userDetails, attemp, globalTimeout) => {
     await page.$eval(formSelector.captcha, (el, value) => (el.value = value), captcha);
     await page.waitForSelector(formSelector.login);
 
-    await page.$eval(formSelector.login, el => el.click());
+    await page.$eval(formSelector.login, (el) => el.click());
     const changePwdButtonSelector = `a[name="HREF_Change Password"]`;
     const errorBadgeSelector = `div[class="redbg"]`;
     await any([
@@ -115,7 +113,7 @@ const attempToLogin = async (page, userDetails, attemp, globalTimeout) => {
 
     const headingSelector = `div[id="PgHeading.Ra1.C2"]`;
     await page.waitForSelector(headingSelector, { timeout: shortWaitingTime });
-    const headerTitle = await page.$eval(headingSelector, el => el.innerHTML);
+    const headerTitle = await page.$eval(headingSelector, (el) => el.innerHTML);
     if (headerTitle !== '<h1>Dashboard</h1>') throw new ErrorHandler(400, pwdExpMsg);
 
     return true;
@@ -126,7 +124,7 @@ const attempToLogin = async (page, userDetails, attemp, globalTimeout) => {
       error.message === notFoundChangePwderrMsg(shortWaitingTime)
     ) {
       const errorBadgeSelector = `div[class="redbg"]`;
-      const bannerText = await page.$eval(errorBadgeSelector, el => el.innerHTML);
+      const bannerText = await page.$eval(errorBadgeSelector, (el) => el.innerHTML);
       const regexTemp = /(.)* (The maximum retry attempts allowed for this access mode are 5.)/;
       const groups = bannerText.match(regexTemp);
       if (groups && groups.length >= 2 && groups[2] === wrongPwdTemplate) {
@@ -140,7 +138,7 @@ const attempToLogin = async (page, userDetails, attemp, globalTimeout) => {
   }
 };
 
-const testForPwdExpiry = async page => {
+const testForPwdExpiry = async (page) => {
   try {
     const pwdPolicyGuidlinesSelector = `span[id="Guidelines"]`;
     await page.waitForSelector(pwdPolicyGuidlinesSelector, { timeout: shortWaitingTime });

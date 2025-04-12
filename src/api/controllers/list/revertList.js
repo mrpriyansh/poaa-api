@@ -6,13 +6,13 @@ const dbTransactionWrapper = require('../../utils/dbTransactionWrapper');
 
 module.exports = async (req, res, next) => {
   try {
-    await dbTransactionWrapper(async session => {
+    await dbTransactionWrapper(async (session) => {
       const records = await List.findOne({ _id: req.params.listId });
       if (!records) throw new ErrorHandler(400, "List doesn't exists");
       if (records.status === REFERENCE_NO_CREATED)
         throw new ErrorHandler(400, "Operation can't be performed");
       const bulkUpdate = records.list.reduce((acc, list) => {
-        list.accounts.forEach(inst => {
+        list.accounts.forEach((inst) => {
           acc[inst.accountNo] = {
             ...inst,
             installments:
@@ -23,7 +23,7 @@ module.exports = async (req, res, next) => {
         return acc;
       }, {});
       await Installment.bulkWrite(
-        Object.keys(bulkUpdate).map(ele => ({
+        Object.keys(bulkUpdate).map((ele) => ({
           updateOne: {
             filter: { accountNo: bulkUpdate[ele].accountNo },
             update: {

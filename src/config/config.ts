@@ -1,4 +1,4 @@
-import dotenv from "dotenv";
+import * as dotenv from 'dotenv';
 
 dotenv.config();
 
@@ -10,8 +10,8 @@ interface Config {
 }
 
 const config: Config = {
-  mongoURI: MONGODBURI || "",
-  jwtKey: JWTKEY || "",
+  mongoURI: MONGODBURI || '',
+  jwtKey: JWTKEY || '',
 };
 
 export default config;

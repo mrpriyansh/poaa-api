@@ -1,7 +1,6 @@
-/* eslint-disable consistent-return */
 const Task = require('../../models/Task');
 
-const utilFunction = async function(id, res) {
+const utilFunction = async function (id, res) {
   const task = await Task.findOne({ _id: id });
   if (task && task.status !== 'Running' && task.status !== 'Initiated') {
     res.sendEventStreamData(task, 'close');
@@ -10,7 +9,7 @@ const utilFunction = async function(id, res) {
 
   res.sendEventStreamData(task, 'update');
 };
-module.exports = async function(req, res, next) {
+module.exports = async function (req, res, next) {
   try {
     utilFunction(req.query.id, res);
 

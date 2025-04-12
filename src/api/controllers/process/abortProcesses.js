@@ -3,13 +3,12 @@ const Task = require('../../models/Task');
 module.exports = async (req, res, next) => {
   try {
     const { id, processIds } = req.body;
-    // eslint-disable-next-line
+
     for await (const pid of processIds) {
       try {
         await process.kill(pid);
-        await new Promise(resolve => setTimeout(resolve, 500));
+        await new Promise((resolve) => setTimeout(resolve, 500));
       } catch (err) {
-        // eslint-disable-next-line no-console
         console.log(err);
       }
     }

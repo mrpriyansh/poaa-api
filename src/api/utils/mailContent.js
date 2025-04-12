@@ -1,9 +1,8 @@
-/* eslint-disable guard-for-in */
 const { formatDateReverse } = require('.');
 
 const mailContent = (accounts, name, duration) => {
   let accountsInfo = '';
-  // eslint-disable-next-line no-restricted-syntax
+
   for (const index in accounts) {
     accountsInfo += `<tr  style="background-color: ${index % 2 ? '#fff' : '#74bedb'};">
                             <td style="text-align: center; color:#000; border: 1px solid #dddddd; padding: 0 25px">${

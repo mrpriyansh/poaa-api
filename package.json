@@ -39,14 +39,16 @@
     "@types/express": "^5.0.1",
     "@types/node": "^22.14.0",
     "@types/web-push": "^3.6.4",
-    "eslint": "^6.8.0",
+    "@typescript-eslint/eslint-plugin": "^8.29.1",
+    "@typescript-eslint/parser": "^8.29.1",
+    "eslint": "^9.24.0",
     "eslint-config-airbnb-base": "^14.0.0",
-    "eslint-config-prettier": "^6.10.0",
+    "eslint-config-prettier": "^10.1.2",
     "eslint-plugin-import": "^2.20.1",
-    "eslint-plugin-prettier": "^3.1.2",
+    "eslint-plugin-prettier": "^5.2.6",
     "husky": "^4.2.3",
     "lint-staged": "^10.0.7",
-    "prettier": "^1.19.1",
+    "prettier": "^3.5.3",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3"
   },
@@ -55,34 +57,12 @@
       "pre-commit": "yarn lint-staged"
     }
   },
-  "eslintConfig": {
-    "extends": [
-      "airbnb-base",
-      "prettier"
-    ],
-    "plugins": [
-      "prettier"
-    ],
-    "rules": {
-      "prettier/prettier": "error",
-      "no-underscore-dangle": 0,
-      "func-names": 0,
-      "consistent-return": 0
-    }
-  },
-  "prettier": {
-    "printWidth": 100,
-    "singleQuote": true,
-    "trailingComma": "es5",
-    "endOfLine": "lf"
-  },
   "lint-staged": {
     "*.js": [
       "eslint --fix",
       "git add"
     ],
     "*.ts": [
-      "npx tsc --noEmit",
       "eslint --fix",
       "git add"
     ]

@@ -1,7 +1,4 @@
 // @ts-nocheck
-/* eslint-disable no-restricted-syntax */
-/* eslint-disable guard-for-in */
-/* eslint-disable import/extensions */
 import express from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
@@ -25,7 +22,7 @@ app.use(express.json({ extended: false }));
 
 app.use(
   morgan('tiny', {
-    skip: req => {
+    skip: (req) => {
       return req.path === '/' && req.method === 'GET';
     },
   })
@@ -40,8 +37,8 @@ const PORT = process.env.PORT || 4000;
 app.get('/', (req, res) => res.send(`Server Up and running v${process.env.npm_package_version}`));
 
 app.use('/api', require('./api/index.js'));
-// eslint-disable-next-line no-unused-vars
-app.use((err, req, res, next) => {
+
+app.use((err, req, res) => {
   handleError(err, req, res);
 });
 
@@ -54,7 +51,7 @@ app.use((err, req, res, next) => {
 cron.schedule('5 0 * * *', async () => {
   const users = await User.find({});
 
-  const allPromises = users.map(agent => {
+  const allPromises = users.map((agent) => {
     return cronJob({
       name: agent.name,
       email:
@@ -69,6 +66,5 @@ cron.schedule('5 0 * * *', async () => {
 });
 
 app.listen(PORT, () => {
-  // eslint-disable-next-line no-console
   console.log(`Server ${process.env.npm_package_version} is running on ${PORT}`);
 });

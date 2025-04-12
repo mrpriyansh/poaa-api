@@ -16,7 +16,7 @@ module.exports = async (req, res, next) => {
 
     gTaskProcessor = taskProcessor;
 
-    taskProcessor.on('message', async function(payload) {
+    taskProcessor.on('message', async function (payload) {
       try {
         if (payload.error) {
           await Task.updateOne(
@@ -28,12 +28,11 @@ module.exports = async (req, res, next) => {
           await Task.updateOne({ _id: task._id }, { $set: { ...payload } });
         }
       } catch (err) {
-        // eslint-disable-next-line no-console
         console.log(err);
       }
     });
 
-    taskProcessor.on('close', function() {
+    taskProcessor.on('close', function () {
       this.kill();
     });
 

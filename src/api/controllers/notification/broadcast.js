@@ -4,7 +4,7 @@ const Subscription = require('../../models/Subscription');
 module.exports = async (_, res, next) => {
   try {
     const subscriptions = await Subscription.find();
-    const notificationPromises = subscriptions.map(subs => {
+    const notificationPromises = subscriptions.map((subs) => {
       return webpush.sendNotification(
         subs,
         JSON.stringify({
@@ -26,11 +26,11 @@ module.exports = async (_, res, next) => {
     });
     const fullfilledPromises = await Promise.allSettled(notificationPromises);
     const failedEnpoints = fullfilledPromises
-      .filter(promise => promise.status === 'rejected')
-      .map(promise => promise.reason.endpoint);
+      .filter((promise) => promise.status === 'rejected')
+      .map((promise) => promise.reason.endpoint);
 
     await Subscription.bulkWrite(
-      failedEnpoints.map(endpoint => {
+      failedEnpoints.map((endpoint) => {
         return {
           deleteOne: {
             filter: { endpoint },

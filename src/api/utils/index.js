@@ -1,4 +1,3 @@
-/* eslint-disable no-restricted-syntax */
 const nodemailer = require('nodemailer');
 const fs = require('fs');
 const Account = require('../models/Accounts');
@@ -7,7 +6,6 @@ const Installment = require('../models/Installment');
 const { INSTALLMENT_PENDING } = require('./constants');
 
 const isNull = (obj, fields) => {
-  // eslint-disable-next-line guard-for-in
   for (const prop in fields) {
     if (!obj[fields[prop]]) {
       return true;
@@ -67,37 +65,25 @@ const sendMail = async (
   });
 };
 
-const formatDateReverse = date => {
-  const splits = date
-    .toISOString()
-    .split('T')[0]
-    .split('-');
+const formatDateReverse = (date) => {
+  const splits = date.toISOString().split('T')[0].split('-');
   return `${splits[2]}-${splits[1]}-${splits[0]}`;
 };
 
-const reverseString = str => {
-  return str
-    .split('')
-    .reverse()
-    .join('');
+const reverseString = (str) => {
+  return str.split('').reverse().join('');
 };
 
-const formatDate = date => {
-  return date
-    .toJSON()
-    .slice(0, 10)
-    .split('-')
-    .reverse()
-    .join('-');
+const formatDate = (date) => {
+  return date.toJSON().slice(0, 10).split('-').reverse().join('-');
 };
 
 const checkFileExist = async (path, timeout = 30000) => {
   let totalTime = 0;
   const checkTime = timeout / 10;
 
-  // eslint-disable-next-line no-return-await
-  return await new Promise(resolve => {
-    const timer = setInterval(function() {
+  return await new Promise((resolve) => {
+    const timer = setInterval(function () {
       totalTime += checkTime;
 
       const fileExists = fs.existsSync(path);

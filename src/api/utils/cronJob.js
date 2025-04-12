@@ -1,5 +1,3 @@
-/* eslint-disable no-console */
-
 const Accounts = require('../models/Accounts');
 const { sendMail } = require('.');
 const mailContent = require('./mailContent');
@@ -8,7 +6,7 @@ const formatDate = (day, month, year) => {
   const date = `${year}-${month < 10 ? `0${month}` : month}-${day < 10 ? `0${day}` : day}`;
   return new Date(date);
 };
-module.exports = async agentDetails => {
+module.exports = async (agentDetails) => {
   try {
     const date = new Date();
     const day = date.getUTCDate();

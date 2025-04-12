@@ -7,7 +7,7 @@ module.exports = async (req, res, next) => {
   try {
     if (!req.body.accountNo) throw new ErrorHandler(400, 'Account Number is required');
 
-    await dbTransactionWrapper(async session => {
+    await dbTransactionWrapper(async (session) => {
       await Installment.deleteOne({ accountNo: req.body.accountNo }).session(session);
       await Accounts.deleteOne({ accountNo: req.body.accountNo }).session(session);
     });
