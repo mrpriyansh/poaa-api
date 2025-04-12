@@ -63,6 +63,7 @@
       "git add"
     ],
     "*.ts": [
+       "tsc --project tsconfig.json",
       "eslint --fix",
       "git add"
     ]
