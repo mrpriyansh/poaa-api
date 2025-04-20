@@ -6,8 +6,8 @@ import cron from 'node-cron';
 
 import connectDB from './config/db';
 
-const { handleError } = require('./services/handleError.js');
-const cronJob = require('./api/utils/cronJob.js');
+const { handleError } = require('./services/handleError');
+const cronJob = require('./api/utils/cronJob');
 const User = require('./api/models/User.js');
 const webPush = require('./config/webPush.js');
 

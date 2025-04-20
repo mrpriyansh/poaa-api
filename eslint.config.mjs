@@ -57,7 +57,7 @@ export default [
       // TypeScript specific rules (adjust as needed)
       '@typescript-eslint/explicit-function-return-type': 'warn', // Consider 'error'
       // '@typescript-eslint/no-explicit-any': 'warn', // Consider 'error'
-      // '@typescript-eslint/no-unused-vars': '', // Consider 'error'
+      '@typescript-eslint/no-unused-vars': 'warn', // Consider 'error'
       '@typescript-eslint/no-non-null-assertion': 'warn', // Decide on your preference
       '@typescript-eslint/consistent-type-imports': 'warn', // Enforce consistent 'import type'
       '@typescript-eslint/no-shadow': 'warn', // More TS-aware no-shadow

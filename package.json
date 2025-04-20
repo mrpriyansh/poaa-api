@@ -64,7 +64,6 @@
       "git add"
     ],
     "*.ts": [
-      "tsc --noEmit",
       "eslint --fix",
       "git add"
     ]

@@ -105,7 +105,7 @@ module.exports = async (id, userDetails, taskId, globalTimeout = 3000) => {
         await page.waitForSelector(accCBSelector);
         await page.$eval(accCBSelector, (el) => el.click());
       }
-      refNo = await afterSelectingAcc(page, allAccounts, listData, listIndex);
+      const refNo = await afterSelectingAcc(page, allAccounts, listData, listIndex);
       listsRefno.push({ refNo });
     }
 

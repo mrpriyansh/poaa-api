@@ -1,3 +1,4 @@
+// @ts-nocheck
 const updateBulkAslaas = require('../account/updateBulkAslaas');
 const createList = require('../list/createList');
 

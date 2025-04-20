@@ -39,7 +39,8 @@ module.exports = async (allAccounts) => {
     await page.$eval(accountEnquireSelector, (el) => el.click());
     const succ = [],
       fail = [];
-    for (const ind in allAccounts) {
+    for (const index in allAccounts) {
+      const ind = parseInt(index, 10);
       const err = await updateAslaas(page, allAccounts[ind]);
       if (err) {
         fail.push(allAccounts[ind]);

@@ -3,7 +3,8 @@ const { formatDateReverse } = require('.');
 const mailContent = (accounts, name, duration) => {
   let accountsInfo = '';
 
-  for (const index in accounts) {
+  for (const ind in accounts) {
+    const index = parseInt(ind, 10); // TODO Remove this parseInt and use forEach instead
     accountsInfo += `<tr  style="background-color: ${index % 2 ? '#fff' : '#74bedb'};">
                             <td style="text-align: center; color:#000; border: 1px solid #dddddd; padding: 0 25px">${
                               accounts[index].name
