@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import config from './config.js';
+import config from './config';
 
 const db: string = config.mongoURI + (process.env.NODE_ENV === 'production' ? '' : '-dev');
 

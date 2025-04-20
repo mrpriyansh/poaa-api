@@ -7,6 +7,7 @@
   "type": "commonjs",
   "scripts": {
     "start": "tsc && node dist/server.js",
+    "start:dev": " Set PORT=4001 && tsc && node dist/server.js",
     "dev": "nodemon src/server.ts",
     "deploy:patch": "./scripts/deploy_prod.sh patch",
     "deploy:minor": "./scripts/deploy_prod.sh minor",
@@ -63,7 +64,7 @@
       "git add"
     ],
     "*.ts": [
-       "tsc --project tsconfig.json",
+      "tsc --noEmit",
       "eslint --fix",
       "git add"
     ]

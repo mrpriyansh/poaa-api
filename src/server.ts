@@ -4,7 +4,7 @@ import cors from 'cors';
 import morgan from 'morgan';
 import cron from 'node-cron';
 
-import connectDB from './config/db.js';
+import connectDB from './config/db';
 
 const { handleError } = require('./services/handleError.js');
 const cronJob = require('./api/utils/cronJob.js');
