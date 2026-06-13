@@ -37,7 +37,6 @@ const Account = new mongoose.Schema(
     },
     cifid: {
       type: String,
-      required: true,
     },
   },
   {

@@ -10,7 +10,7 @@ export interface IAccount extends Document {
   maturityDate: Date;
   agentId: Types.ObjectId;
   mobile?: number;
-  cifid: string;
+  cifid?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -55,7 +55,6 @@ const accountSchema = new Schema<IAccount>(
     },
     cifid: {
       type: String,
-      required: true,
       trim: true,
     },
   },
