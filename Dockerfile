@@ -18,12 +18,14 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 COPY yarn.lock ./
 
-RUN yarn install
+RUN npm install -g yarn && yarn install
 
 ENV NODE_ENV=production
 ENV PORT=8080
 
 
 COPY . .
+
+RUN npx tsc
 
 CMD [ "npm", "start"]
