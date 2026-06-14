@@ -26,6 +26,6 @@ ENV PORT=8080
 
 COPY . .
 
-RUN npx tsc
+RUN npx tsc && ls -la dist/
 
 CMD [ "npm", "start"]
