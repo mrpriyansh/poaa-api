@@ -7,10 +7,10 @@
   "scripts": {
     "start": "node dist/server.js",
     "dev": "nodemon src/server.ts",
-    "deploy:patch": "./scripts/deploy_prod.sh patch",
-    "deploy:minor": "./scripts/deploy_prod.sh minor",
-    "deploy:major": "./scripts/deploy_prod.sh major",
-    "deploy:dev": "./scripts/deploy_dev.sh"
+    "deploy:patch": "node scripts/deploy_prod.js patch",
+    "deploy:minor": "node scripts/deploy_prod.js minor",
+    "deploy:major": "node scripts/deploy_prod.js major",
+    "deploy:dev": "node scripts/deploy_dev.js"
   },
   "dependencies": {
     "@google-cloud/storage": "^6.10.1",
