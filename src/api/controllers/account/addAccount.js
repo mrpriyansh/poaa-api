@@ -9,7 +9,6 @@ module.exports = async (req, res, next) => {
     'amount',
     'openingDate',
     'maturityDate',
-    'cifid',
   ];
   if (isNull(req.body, fields)) next(new ErrorHandler(400, 'Fields cannot be empty'));
 
