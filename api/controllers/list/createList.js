@@ -19,14 +19,18 @@ module.exports = async (id, userDetails, taskId, globalTimeout = 3000) => {
     await List.updateOne({ _id: id }, { $set: { taskId } });
     const { list, agentId } = await List.findOne({ _id: id });
     // launch browser instance
-    browser = await puppeteer.launch({
+    const launchOptions = {
       headless: process.env.NODE_ENV === 'production',
       args: ['--no-sandbox', '--disable-setuid-sandbox'],
-      executablePath:
-        process.env.NODE_ENV === 'production'
-          ? '/usr/bin/google-chrome'
-          : '/usr/bin/google-chrome-stable',
-    });
+    };
+
+    if (process.env.PUPPETEER_EXECUTABLE_PATH) {
+      launchOptions.executablePath = process.env.PUPPETEER_EXECUTABLE_PATH;
+    } else if (process.env.NODE_ENV === 'production') {
+      launchOptions.executablePath = '/usr/bin/google-chrome';
+    }
+
+    browser = await puppeteer.launch(launchOptions);
     await process.send({
       status: 'Running',
       progress: 'List generation started.',
