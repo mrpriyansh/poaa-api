@@ -7,7 +7,7 @@ const List = require('../../models/List');
 const CryptoJS = require('crypto-js');
 const any = require('promise.any');
 const fs = require('fs').promises;
-const { REFERENCE_NO_CREATED } = require('../../utils/constants');
+const { REFERENCE_NO_CREATED, PAYMENT_MODES, PORTAL_PAY_MODE_MAP } = require('../../utils/constants');
 const { uploadFile } = require('../../../config/storageUtils');
 const { formatDate, checkFileExist } = require('../../utils');
 
@@ -19,14 +19,18 @@ module.exports = async (id, userDetails, taskId, globalTimeout = 3000) => {
     await List.updateOne({ _id: id }, { $set: { taskId } });
     const { list, agentId } = await List.findOne({ _id: id });
     // launch browser instance
-    browser = await puppeteer.launch({
+    const launchOptions = {
       headless: process.env.NODE_ENV === 'production',
       args: ['--no-sandbox', '--disable-setuid-sandbox'],
-      executablePath:
-        process.env.NODE_ENV === 'production'
-          ? '/usr/bin/google-chrome'
-          : '/usr/bin/google-chrome-stable',
-    });
+    };
+
+    if (process.env.PUPPETEER_EXECUTABLE_PATH) {
+      launchOptions.executablePath = process.env.PUPPETEER_EXECUTABLE_PATH;
+    } else if (process.env.NODE_ENV === 'production') {
+      launchOptions.executablePath = '/usr/bin/google-chrome';
+    }
+
+    browser = await puppeteer.launch(launchOptions);
     await process.send({
       status: 'Running',
       progress: 'List generation started.',
@@ -92,7 +96,10 @@ module.exports = async (id, userDetails, taskId, globalTimeout = 3000) => {
         throw new Error(`Check all the accounts of list number ${listIndex + 1}`);
       }
 
-      const txnModeSelector = `input[name="CustomAgentRDAccountFG.PAY_MODE_SELECTED_FOR_TRN"][value='C']`;
+      const payMode = listData.payMode || PAYMENT_MODES.CASH;
+      const portalPayMode = PORTAL_PAY_MODE_MAP[payMode] || 'C';
+
+      const txnModeSelector = `input[name="CustomAgentRDAccountFG.PAY_MODE_SELECTED_FOR_TRN"][value='${portalPayMode}']`;
       await page.waitForSelector(txnModeSelector);
       await page.$eval(txnModeSelector, el => el.click());
 
@@ -106,7 +113,7 @@ module.exports = async (id, userDetails, taskId, globalTimeout = 3000) => {
         await page.waitForSelector(accCBSelector);
         await page.$eval(accCBSelector, el => el.click());
       }
-      refNo = await afterSelectingAcc(page, allAccounts, listData, listIndex);
+      refNo = await afterSelectingAcc(page, allAccounts, listData, listIndex, payMode);
       listsRefno.push({ refNo });
     }
 
@@ -123,13 +130,14 @@ module.exports = async (id, userDetails, taskId, globalTimeout = 3000) => {
     }
     await process.send({ misc: lists, status: 'Done', progress: 100.0 });
   } catch (error) {
+    console.log(error)
     await process.send({ error: error.message });
   } finally {
-    if (browser) browser.close();
+    // if (browser) browser.close();
   }
 };
 
-const afterSelectingAcc = async (page, allAccounts, listData, listIndex) => {
+const afterSelectingAcc = async (page, allAccounts, listData, listIndex, payMode) => {
   try {
     const saveBtnSelector = `input[name="Action.SAVE_ACCOUNTS"]`;
     await page.waitForSelector(saveBtnSelector);
@@ -141,7 +149,7 @@ const afterSelectingAcc = async (page, allAccounts, listData, listIndex) => {
       throw new Error(checkError);
     }
 
-    await process.send({ progress: `Chaning Installments of accounts of list ${listIndex + 1}` });
+    await process.send({ progress: `Updating account details of list ${listIndex + 1}` });
     for (const [ind, elem] of listData.accounts
       .sort((a, b) => a.accountNo.localeCompare(b.accountNo))
       .entries()) {
@@ -150,8 +158,8 @@ const afterSelectingAcc = async (page, allAccounts, listData, listIndex) => {
         await page.waitForSelector(nextBtnSelector);
         await page.$eval(nextBtnSelector, el => el.click());
       }
-      if (elem.paidInstallments !== 1) {
-        await changeInstallments(page, ind, elem);
+      if (elem.paidInstallments !== 1 || payMode === PAYMENT_MODES.DOP_CHEQUE) {
+        await updateInstallmentDetails(page, ind, elem, payMode);
       }
     }
 
@@ -162,16 +170,18 @@ const afterSelectingAcc = async (page, allAccounts, listData, listIndex) => {
     const greenBannerSelector = `div[class="greenbg"]`;
     await page.waitForSelector(greenBannerSelector);
     const bannerText = await page.$eval(greenBannerSelector, el => el.innerHTML);
-    const regexTemp = /Payment successful. Your payment reference number is (C\d{9}). Please note your reference number for future queries./;
+    const regexTemp = /Payment successful. Your payment reference number is ((?:C|DC|NDC)\d{9}). Please note your reference number for future queries./;
     return bannerText.match(regexTemp)[1];
   } catch (error) {
     throw error;
   }
 };
 
-const changeInstallments = async (page, ind, elem) => {
+const updateInstallmentDetails = async (page, ind, elem, payMode) => {
   const accRadioSelector = `input[name="CustomAgentRDAccountFG.SELECTED_INDEX"][value="${ind}"]`;
   const noOfInstSelector = `input[name="CustomAgentRDAccountFG.RD_INSTALLMENT_NO"]`;
+  const chequeNoSelector = `input[name="CustomAgentRDAccountFG.RD_CHEQUE_NO"]`;
+  const chequeAccNoSelector = `input[name="CustomAgentRDAccountFG.RD_ACCOUNT_NUMBER_FOR_PAYMENT"]`;
 
   try {
     const tablePage = Math.floor(ind / 10);
@@ -184,10 +194,29 @@ const changeInstallments = async (page, ind, elem) => {
     }
     await page.waitForSelector(accRadioSelector);
     await page.$eval(accRadioSelector, el => el.click());
-    await page.$eval(noOfInstSelector, (el, value) => (el.value = value), elem.paidInstallments);
+
+    if (elem.paidInstallments && elem.paidInstallments !== 1) {
+      await page.waitForSelector(noOfInstSelector);
+      await page.$eval(noOfInstSelector, (el, value) => (el.value = value), elem.paidInstallments);
+    }
+
+    if (payMode === PAYMENT_MODES.DOP_CHEQUE) {
+      if (elem.chequeNo) {
+        await page.waitForSelector(chequeNoSelector);
+        await page.$eval(chequeNoSelector, (el, value) => (el.value = value), elem.chequeNo);
+      }
+      if (elem.chequeAccNo) {
+        await page.waitForSelector(chequeAccNoSelector);
+        await page.$eval(chequeAccNoSelector, (el, value) => (el.value = value), elem.chequeAccNo);
+      }
+    }
 
     const saveInstBtnSelector = `input[name="Action.ADD_TO_LIST"]`;
     await page.$eval(saveInstBtnSelector, el => el.click());
+    const checkError = await checkForError(page);
+    if (checkError !== 'NOT_FOUND') {
+      throw new Error(checkError);
+    }
   } catch (error) {
     throw error;
   }

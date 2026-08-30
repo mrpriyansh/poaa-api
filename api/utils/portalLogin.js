@@ -100,6 +100,7 @@ const attempToLogin = async (page, userDetails, attemp, globalTimeout) => {
       (el, value) => (el.value = value),
       userDetails.pPassword
     );
+    console.log(userDetails.pPassword, "password")
     await page.waitForSelector(formSelector.captcha);
     await page.$eval(formSelector.captcha, (el, value) => (el.value = value), captcha);
     await page.waitForSelector(formSelector.login);
