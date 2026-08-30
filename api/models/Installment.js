@@ -27,6 +27,17 @@ const Installment = new mongoose.Schema(
       type: String,
       required: true,
     },
+    payMode: {
+      type: String,
+      enum: ['CASH', 'DOP_CHEQUE', 'NON_DOP_CHEQUE'],
+      default: 'CASH',
+    },
+    chequeNo: {
+      type: String,
+    },
+    chequeAccNo: {
+      type: String,
+    },
     listedOn: {
       type: Date,
     },

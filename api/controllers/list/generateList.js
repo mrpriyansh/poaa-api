@@ -9,7 +9,74 @@ const {
   LIST_LIMIT,
   LIST_CREATED,
   INSTALLMENT_LOGGED,
+  PAYMENT_MODES,
 } = require('../../utils/constants');
+
+const chunkInstallments = (installmentsList, payMode) => {
+  const resultLists = [];
+  let curListRemaining = 0;
+  let listNo = 0;
+
+  installmentsList.forEach(inst => {
+    let remainingAmount = inst.total;
+    let remainingInstallment = inst.installments;
+
+    while (remainingAmount > 0) {
+      let ind = 0;
+      while (ind < listNo && remainingAmount > 0) {
+        const available = LIST_LIMIT - resultLists[ind].totalAmount;
+        if (available >= remainingAmount) {
+          const payableInst = Math.min(Math.floor(available / inst.amount), remainingInstallment);
+          resultLists[ind].accounts.push({
+            paidInstallments: payableInst,
+            accountNo: inst.accountNo,
+            name: inst.name,
+            amount: inst.amount,
+            totalAmount: inst.amount * payableInst,
+            ...(inst.chequeNo && { chequeNo: inst.chequeNo }),
+            ...(inst.chequeAccNo && { chequeAccNo: inst.chequeAccNo }),
+          });
+          resultLists[ind].totalAmount += inst.amount * payableInst;
+          resultLists[ind].count += 1;
+          remainingAmount -= payableInst * inst.amount;
+          remainingInstallment -= payableInst;
+          if (ind === listNo - 1) curListRemaining -= payableInst * inst.amount;
+        }
+        ind += 1;
+      }
+
+      if (remainingAmount > 0) {
+        if (curListRemaining < remainingAmount) {
+          listNo += 1;
+          curListRemaining = LIST_LIMIT;
+        }
+        const payableInst = Math.min(
+          Math.floor(curListRemaining / inst.amount),
+          remainingInstallment
+        );
+        if (resultLists.length < listNo) {
+          resultLists.push({ accounts: [], totalAmount: 0, count: 0, payMode });
+        }
+        resultLists[listNo - 1].accounts.push({
+          paidInstallments: payableInst,
+          accountNo: inst.accountNo,
+          name: inst.name,
+          amount: inst.amount,
+          totalAmount: inst.amount * payableInst,
+          ...(inst.chequeNo && { chequeNo: inst.chequeNo }),
+          ...(inst.chequeAccNo && { chequeAccNo: inst.chequeAccNo }),
+        });
+        resultLists[listNo - 1].totalAmount += inst.amount * payableInst;
+        resultLists[listNo - 1].count += 1;
+        curListRemaining -= payableInst * inst.amount;
+        remainingAmount -= payableInst * inst.amount;
+        remainingInstallment -= payableInst;
+      }
+    }
+  });
+
+  return resultLists;
+};
 
 module.exports = async (req, res, next) => {
   try {
@@ -45,67 +112,17 @@ module.exports = async (req, res, next) => {
         throw new ErrorHandler(400, 'No installments found');
       }
 
-      const list = [];
-      let curListRemaining = 0;
-      let listNo = 0;
-      installments.forEach(inst => {
-        let remainingAmount = inst.total;
-        let remainingInstallment = inst.installments;
-        while (remainingAmount > 0) {
-          let ind = 0;
-          while (ind < listNo && remainingAmount > 0) {
-            const available = LIST_LIMIT - list[ind].totalAmount;
-            if (available >= remainingAmount) {
-              const payableInst = Math.min(
-                Math.floor(available / inst.amount),
-                remainingInstallment
-              );
-              list[ind].accounts.push({
-                paidInstallments: payableInst,
-                accountNo: inst.accountNo,
-                name: inst.name,
-                amount: inst.amount,
-                totalAmount: inst.amount * payableInst,
-              });
-              list[ind].totalAmount += inst.amount * payableInst;
-              list[ind].count += 1;
-              remainingAmount -= payableInst * inst.amount;
-              remainingInstallment -= payableInst;
-              if (ind === listNo - 1) curListRemaining -= payableInst * inst.amount;
-            }
-            ind += 1;
-          }
-          if (remainingAmount > 0) {
-            if (
-              // curListRemaining < inst.amount ||
-              curListRemaining < remainingAmount
-              // && inst.total < LIST_LIMIT
-            ) {
-              listNo += 1;
-              curListRemaining = LIST_LIMIT;
-            }
-            const payableInst = Math.min(
-              Math.floor(curListRemaining / inst.amount),
-              remainingInstallment
-            );
-            if (list.length < listNo) {
-              list.push({ accounts: [], totalAmount: 0, count: 0 });
-            }
-            list[listNo - 1].accounts.push({
-              paidInstallments: payableInst,
-              accountNo: inst.accountNo,
-              name: inst.name,
-              amount: inst.amount,
-              totalAmount: inst.amount * payableInst,
-            });
-            list[listNo - 1].totalAmount += inst.amount * payableInst;
-            list[listNo - 1].count += 1;
-            curListRemaining -= payableInst * inst.amount;
-            remainingAmount -= payableInst * inst.amount;
-            remainingInstallment -= payableInst;
-          }
-        }
-      });
+      const cashInstallments = installments.filter(
+        inst => !inst.payMode || inst.payMode === PAYMENT_MODES.CASH
+      );
+      const chequeInstallments = installments.filter(
+        inst => inst.payMode === PAYMENT_MODES.DOP_CHEQUE
+      );
+
+      const cashLists = chunkInstallments(cashInstallments, PAYMENT_MODES.CASH);
+      const chequeLists = chunkInstallments(chequeInstallments, PAYMENT_MODES.DOP_CHEQUE);
+
+      const list = [...cashLists, ...chequeLists];
 
       await Installment.updateMany(
         {
