@@ -1,10 +1,38 @@
-FROM node:slim
 
-# We don't need the standalone Chromium
-ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
+# --- STAGE 1: Build & Dependency Resolution ---
+FROM node:22-slim AS builder
 
-# Install Google Chrome Stable and fonts
-# Note: this installs the necessary libs to make the browser work with Puppeteer.
+WORKDIR /usr/src/app
+
+# Install required build tools for potential native node modules
+RUN apt-get update && apt-get install -y --no-install-recommends build-essential python3 && \
+	rm -rf /var/lib/apt/lists/*
+
+# Optimize Cache: Copy ONLY lockfiles first so dependencies don't rebuild on code changes
+COPY package*.json yarn.lock ./
+
+# Install ALL dependencies (including devDependencies if needed for typescript/builds)
+RUN yarn install --frozen-lockfile
+
+# Copy source code and build step (uncomment if you use TypeScript/Vite/NextJS)
+COPY . .
+# RUN yarn build 
+
+# Clean up devDependencies to keep production image small
+RUN yarn install --production --frozen-lockfile --ignore-scripts
+
+
+# --- STAGE 2: Lightweight Production Image ---
+FROM node:22-slim AS runner
+
+WORKDIR /usr/src/app
+
+# Set modern environment variables
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
+	NODE_ENV=production \
+	PORT=8080
+
+# Install ONLY runtime dependencies (Google Chrome for Puppeteer)
 RUN apt-get update && apt-get install gnupg wget -y && \
 	wget --quiet --output-document=- https://dl-ssl.google.com/linux/linux_signing_key.pub | gpg --dearmor > /etc/apt/trusted.gpg.d/google-archive.gpg && \
 	sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list' && \
@@ -12,18 +40,14 @@ RUN apt-get update && apt-get install gnupg wget -y && \
 	apt-get install google-chrome-stable -y --no-install-recommends && \
 	rm -rf /var/lib/apt/lists/*
 
-WORKDIR /usr/src/app
 
 
-COPY package*.json ./
-COPY yarn.lock ./
-
-RUN yarn install
-
-ENV NODE_ENV=production
-ENV PORT=8080
-
-
+# Copy application source files
 COPY . .
 
-CMD [ "npm", "start"]
+# Copy pruned production node_modules directly from the builder stage
+COPY --from=builder /usr/src/app/node_modules ./node_modules
+
+EXPOSE 8080
+
+CMD [ "yarn", "start" ]
