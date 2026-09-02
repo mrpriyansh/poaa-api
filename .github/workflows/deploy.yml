@@ -72,12 +72,20 @@ jobs:
         env:
           GCLOUD_JSON: ${{ secrets.GCLOUD_JSON }}
         run: |
+          if [ -z "$GCLOUD_JSON" ]; then
+            echo "::error::GCLOUD_JSON secret is empty or missing in GitHub Repository Secrets!"
+            exit 1
+          fi
           echo "$GCLOUD_JSON" > gcloud.json
 
       - name: Create .env from Secret
         env:
           ENV_FILE: ${{ secrets.ENV_FILE }}
         run: |
+          if [ -z "$ENV_FILE" ]; then
+            echo "::error::ENV_FILE secret is empty or missing in GitHub Repository Secrets!"
+            exit 1
+          fi
           echo "$ENV_FILE" > .env
 
       # 3. Authenticate to Google Cloud
