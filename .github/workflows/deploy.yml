@@ -1,0 +1,106 @@
+name: Deploy POAA API to Cloud Run
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      bump_type:
+        description: 'Manual Version Bump Type (Overrides automatic patch)'
+        required: false
+        default: 'auto'
+        type: choice
+        options:
+          - auto
+          - patch
+          - minor
+          - major
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    name: Build, Version & Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # 1. Determine bump type (Manual input > [major]/[minor] commit tag > default patch)
+      - name: Calculate & Bump Version
+        id: bump
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          MANUAL_INPUT="${{ github.event.inputs.bump_type }}"
+          COMMIT_MSG=$(git log -1 --pretty=%B)
+
+          if [ -n "$MANUAL_INPUT" ] && [ "$MANUAL_INPUT" != "auto" ]; then
+            BUMP_TYPE="$MANUAL_INPUT"
+          elif [[ "$COMMIT_MSG" == *"[major]"* ]]; then
+            BUMP_TYPE="major"
+          elif [[ "$COMMIT_MSG" == *"[minor]"* ]]; then
+            BUMP_TYPE="minor"
+          else
+            BUMP_TYPE="patch"
+          fi
+
+          echo "Determined version bump type: $BUMP_TYPE"
+          npm version $BUMP_TYPE -m "chore(release): %s [skip ci]"
+
+          NEW_VERSION=$(node -p "require('./package.json').version")
+          echo "version=$NEW_VERSION" >> "$GITHUB_OUTPUT"
+
+          # Push updated package.json and the git tag back to main
+          git push origin main --follow-tags
+
+      # 2. Inject gcloud.json securely from GitHub Secret (does not get committed to git)
+      - name: Create gcloud.json from Secret
+        env:
+          GCLOUD_JSON: ${{ secrets.GCLOUD_JSON }}
+        run: |
+          echo "$GCLOUD_JSON" > gcloud.json
+
+      # 3. Authenticate to Google Cloud
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure Docker for Artifact Registry
+        run: |
+          gcloud auth configure-docker northamerica-northeast1-docker.pkg.dev --quiet
+
+      # 4. Build and Push Docker Image (Tagged with both :latest and semantic version :vX.Y.Z)
+      - name: Build and Push Docker Image
+        run: |
+          IMAGE_BASE="northamerica-northeast1-docker.pkg.dev/poaa-389702/api/poaa-api"
+          docker build . \
+            -t "${IMAGE_BASE}:latest" \
+            -t "${IMAGE_BASE}:v${{ steps.bump.outputs.version }}"
+          docker push "${IMAGE_BASE}:latest"
+          docker push "${IMAGE_BASE}:v${{ steps.bump.outputs.version }}"
+
+      # 5. Deploy to Google Cloud Run
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy poaa-api \
+            --image "northamerica-northeast1-docker.pkg.dev/poaa-389702/api/poaa-api:v${{ steps.bump.outputs.version }}" \
+            --region northamerica-northeast1 \
+            --set-env-vars "NODE_ENV=production"
