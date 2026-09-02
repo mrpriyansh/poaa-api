@@ -67,12 +67,18 @@ jobs:
           # Push updated package.json and the git tag back to main
           git push origin main --follow-tags
 
-      # 2. Inject gcloud.json securely from GitHub Secret (does not get committed to git)
+      # 2. Inject gcloud.json and .env securely from GitHub Secrets (not committed to git)
       - name: Create gcloud.json from Secret
         env:
           GCLOUD_JSON: ${{ secrets.GCLOUD_JSON }}
         run: |
           echo "$GCLOUD_JSON" > gcloud.json
+
+      - name: Create .env from Secret
+        env:
+          ENV_FILE: ${{ secrets.ENV_FILE }}
+        run: |
+          echo "$ENV_FILE" > .env
 
       # 3. Authenticate to Google Cloud
       - name: Authenticate to Google Cloud
@@ -103,4 +109,5 @@ jobs:
           gcloud run deploy poaa-api \
             --image "northamerica-northeast1-docker.pkg.dev/poaa-389702/api/poaa-api:v${{ steps.bump.outputs.version }}" \
             --region northamerica-northeast1 \
-            --set-env-vars "NODE_ENV=production"
+            --update-env-vars "NODE_ENV=production"
+
