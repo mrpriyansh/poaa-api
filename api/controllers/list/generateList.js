@@ -6,25 +6,32 @@ const dbTransactionWrapper = require('../../utils/dbTransactionWrapper');
 const List = require('../../models/List');
 const {
   INSTALLMENT_PENDING,
-  LIST_LIMIT,
+  LIST_LIMITS,
   LIST_CREATED,
   INSTALLMENT_LOGGED,
   PAYMENT_MODES,
 } = require('../../utils/constants');
 
 const chunkInstallments = (installmentsList, payMode) => {
+  const listLimit = LIST_LIMITS[payMode] || LIST_LIMITS[PAYMENT_MODES.CASH];
   const resultLists = [];
   let curListRemaining = 0;
   let listNo = 0;
 
   installmentsList.forEach(inst => {
+    if (inst.amount > listLimit) {
+      throw new ErrorHandler(
+        400,
+        `Account ${inst.accountNo} amount (${inst.amount}) exceeds list limit of ${listLimit} for ${payMode}`
+      );
+    }
     let remainingAmount = inst.total;
     let remainingInstallment = inst.installments;
 
     while (remainingAmount > 0) {
       let ind = 0;
       while (ind < listNo && remainingAmount > 0) {
-        const available = LIST_LIMIT - resultLists[ind].totalAmount;
+        const available = listLimit - resultLists[ind].totalAmount;
         if (available >= remainingAmount) {
           const payableInst = Math.min(Math.floor(available / inst.amount), remainingInstallment);
           resultLists[ind].accounts.push({
@@ -48,7 +55,7 @@ const chunkInstallments = (installmentsList, payMode) => {
       if (remainingAmount > 0) {
         if (curListRemaining < remainingAmount) {
           listNo += 1;
-          curListRemaining = LIST_LIMIT;
+          curListRemaining = listLimit;
         }
         const payableInst = Math.min(
           Math.floor(curListRemaining / inst.amount),
