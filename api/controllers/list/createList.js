@@ -195,7 +195,11 @@ const updateInstallmentDetails = async (page, ind, elem, payMode) => {
     await page.waitForSelector(accRadioSelector);
     await page.$eval(accRadioSelector, el => el.click());
 
-    if (elem.paidInstallments && elem.paidInstallments !== 1) {
+    // The portal does not reset the installment count to 1 between accounts.
+    // For DOP_CHEQUE payments, saving cheque details would inadvertently carry over
+    // the previous account's installment count, so the installment number must be
+    // explicitly populated for DOP_CHEQUE (even when paidInstallments is 1).
+    if (elem.paidInstallments && (elem.paidInstallments !== 1 || payMode === PAYMENT_MODES.DOP_CHEQUE)) {
       await page.waitForSelector(noOfInstSelector);
       await page.$eval(noOfInstSelector, (el, value) => (el.value = value), elem.paidInstallments);
     }
@@ -213,9 +217,12 @@ const updateInstallmentDetails = async (page, ind, elem, payMode) => {
 
     const saveInstBtnSelector = `input[name="Action.ADD_TO_LIST"]`;
     await page.$eval(saveInstBtnSelector, el => el.click());
-    const checkError = await checkForError(page);
-    if (checkError !== 'NOT_FOUND') {
-      throw new Error(checkError);
+    // Validate only for DOP_CHEQUE; the portal verifies cheque and payment account details at this step, whereas cash payments do not trigger validation errors here.
+    if (payMode === PAYMENT_MODES.DOP_CHEQUE) {
+      const checkError = await checkForError(page);
+      if (checkError !== 'NOT_FOUND') {
+        throw new Error(checkError);
+      }
     }
   } catch (error) {
     throw error;
